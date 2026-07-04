@@ -13,7 +13,7 @@ const toolsData = [
     id: 2,
     title: '幻影坦克 (Mirage)',
     url: 'https://mirage.uyanide.com/',
-    description: '制作经典“幻影坦克”图片——黑底白底各显示一张不同的图，神奇的双重隐藏效果。长按或右键点击保存图片',
+    description: '制作经典“幻影坦克”图片——黑底白底各显示一张不同的图，神奇的双重隐藏效果。',
     category: 'other',
     icon: '👻',
     iconBgClass: 'bg-4',
@@ -28,6 +28,16 @@ const toolsData = [
     icon: '🌀',
     iconBgClass: 'bg-2',
     accentClass: 'accent-2'
+  },
+  {
+    id: 4,
+    title: '图片隐写',
+    url: 'tools/hidefile.html',
+    description: '将任意文件（txt/exe/压缩包等）隐写进图片载体，容量充足即可隐藏。',
+    category: 'other',
+    icon: '📎',
+    iconBgClass: 'bg-1',
+    accentClass: 'accent-1'
   }
   // 👇 后续新链接继续加在这里，用逗号分隔
 ];
