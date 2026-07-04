@@ -13,7 +13,7 @@ const toolsData = [
     id: 2,
     title: '幻影坦克 (Mirage)',
     url: 'https://mirage.uyanide.com/',
-    description: '制作经典“幻影坦克”图片——黑底白底各显示一张不同的图，神奇的双重隐藏效果。',
+    description: '制作经典“幻影坦克”图片——黑底白底各显示一张不同的图，神奇的双重隐藏效果。长按或右键点击保存图片',
     category: 'other',
     icon: '👻',
     iconBgClass: 'bg-4',
