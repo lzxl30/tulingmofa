@@ -28,6 +28,7 @@
       --footer-bg: #12141c;
       --input-bg: #1e2130;
       --card-border: transparent;
+      --modal-bg: #1e2130;
     }
 
     body.light-mode {
@@ -51,6 +52,7 @@
       --footer-bg: #f0f1f6;
       --input-bg: #f0f2f8;
       --card-border: #e8ecf5;
+      --modal-bg: #ffffff;
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -219,6 +221,7 @@
       padding: 6px; border-radius: 50%; transition: 0.2s; color: #7c8096;
       line-height: 1; display: flex; align-items: center; justify-content: center;
       -webkit-tap-highlight-color: transparent;
+      z-index: 5;
     }
     .fav-btn:active { transform: scale(0.9); }
     .fav-btn:hover { background: rgba(249, 123, 168, 0.1); color: #f97ba8; }
@@ -230,6 +233,48 @@
       opacity: 0.3; pointer-events: none;
     }
     .card:hover .card-arrow { color: var(--primary-light); right: 12px; opacity: 1; }
+
+    /* 模态框 */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.75); z-index: 1000;
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px;
+      opacity: 0; visibility: hidden;
+      transition: opacity 0.3s, visibility 0.3s;
+    }
+    .modal-overlay.active { opacity: 1; visibility: visible; }
+    .modal-content {
+      background: var(--modal-bg);
+      border-radius: 16px;
+      width: 100%; max-width: 1100px;
+      height: 85vh; max-height: 800px;
+      display: flex; flex-direction: column;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+      transition: background 0.3s;
+    }
+    .modal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 20px; border-bottom: 1px solid var(--border);
+      font-weight: 600; font-size: 1rem;
+    }
+    .modal-close {
+      background: none; border: none; color: var(--text);
+      font-size: 1.5rem; cursor: pointer; width: 36px; height: 36px;
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      transition: background 0.2s;
+    }
+    .modal-close:hover { background: rgba(255,255,255,0.1); }
+    .modal-iframe-wrap {
+      flex: 1; position: relative; background: #fff;
+    }
+    .modal-iframe-wrap iframe {
+      width: 100%; height: 100%; border: none;
+    }
+    .modal-loading {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+      color: #666; font-size: 0.9rem;
+    }
 
     .empty-state {
       text-align: center; padding: 60px 20px; color: var(--text-secondary);
@@ -278,6 +323,7 @@
       .category-tag { padding: 6px 14px; font-size: 0.8rem; }
       .main-container { padding: 16px 12px 32px; }
       .channel-btn { padding: 10px 16px; font-size: 0.8rem; }
+      .modal-content { height: 90vh; max-height: none; }
     }
 
     @media (min-width: 601px) and (max-width: 1024px) {
@@ -323,6 +369,20 @@
     </div>
   </div>
 
+  <!-- 模态框 -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <span id="modalTitle">工具加载中...</span>
+        <button class="modal-close" id="modalClose">✕</button>
+      </div>
+      <div class="modal-iframe-wrap">
+        <div class="modal-loading" id="modalLoading">⏳ 加载中...</div>
+        <iframe id="modalIframe" src="" sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe>
+      </div>
+    </div>
+  </div>
+
   <footer class="footer">
     <div class="footer-channels">
       <a href="https://pd.qq.com/s/cnedkunn2?b=9" target="_blank" rel="noopener" class="channel-btn">
@@ -332,10 +392,9 @@
         <span class="btn-icon">📡</span> 米游途
       </a>
     </div>
-    <p class="footer-note">⚡ 图灵魔法 · 收藏工具 · 点击卡片跳转</p>
+    <p class="footer-note">⚡ 图灵魔法 · 收藏工具 · 点击卡片即可在当前页面打开</p>
   </footer>
 
-  <!-- 引入同级目录的 toolsData.js -->
   <script src="toolsData.js"></script>
 
   <script>
@@ -345,10 +404,9 @@
         { id: 'all', name: '全部', icon: '📋' }
       ];
 
-      // ✅ 修正：不声明局部变量，直接检查全局变量
       if (typeof toolsData === 'undefined') {
         console.warn('⚠️ 未加载到 toolsData.js，请检查文件是否存在。');
-        toolsData = [];  // 赋值给全局变量（可能为 undefined 时创建）
+        toolsData = [];
       }
 
       let currentCategory = 'all';
@@ -370,6 +428,14 @@
       const searchInput = document.getElementById('searchInput');
       const themeToggle = document.getElementById('themeToggle');
 
+      // 模态框元素
+      const modalOverlay = document.getElementById('modalOverlay');
+      const modalIframe = document.getElementById('modalIframe');
+      const modalTitle = document.getElementById('modalTitle');
+      const modalLoading = document.getElementById('modalLoading');
+      const modalClose = document.getElementById('modalClose');
+
+      // 主题
       function applyTheme(mode) {
         if (mode === 'light') { document.body.classList.add('light-mode'); themeToggle.textContent = '☀️'; }
         else { document.body.classList.remove('light-mode'); themeToggle.textContent = '🌙'; }
@@ -382,6 +448,36 @@
       themeToggle.addEventListener('click', () => {
         const isLight = document.body.classList.contains('light-mode');
         applyTheme(isLight ? 'dark' : 'light');
+      });
+
+      // 打开工具模态框
+      function openTool(url, title) {
+        modalTitle.textContent = title;
+        modalLoading.style.display = 'block';
+        modalIframe.src = url;
+        modalOverlay.classList.add('active');
+        // 监听iframe加载完成
+        modalIframe.onload = () => {
+          modalLoading.style.display = 'none';
+        };
+        // 防止背景滚动
+        document.body.style.overflow = 'hidden';
+      }
+
+      function closeModal() {
+        modalOverlay.classList.remove('active');
+        modalIframe.src = '';
+        modalLoading.style.display = 'block';
+        document.body.style.overflow = '';
+      }
+
+      modalClose.addEventListener('click', closeModal);
+      modalOverlay.addEventListener('click', (e) => {
+        if (e.target === modalOverlay) closeModal();
+      });
+      // 按ESC关闭
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modalOverlay.classList.contains('active')) closeModal();
       });
 
       function getFilteredTools() {
@@ -422,12 +518,10 @@
           cardsGridEl.innerHTML = filtered.map(tool => {
             const isFav = favorites.includes(tool.id);
             return `
-              <div class="card ${tool.accentClass}" data-tool-id="${tool.id}">
-                <a href="${tool.url}" target="_blank" rel="noopener" style="text-decoration:none; color:inherit; display:flex; flex-direction:column; gap:8px; flex:1;">
-                  <div class="card-icon-row"><div class="card-icon ${tool.iconBgClass}">${tool.icon}</div><div class="card-title">${tool.title}</div></div>
-                  <div class="card-desc">${tool.description}</div>
-                  <div class="card-footer-row"><span class="card-category-badge">${tool.category || '工具'}</span></div>
-                </a>
+              <div class="card ${tool.accentClass}" data-tool-id="${tool.id}" data-url="${tool.url}" data-title="${tool.title}">
+                <div class="card-icon-row"><div class="card-icon ${tool.iconBgClass}">${tool.icon}</div><div class="card-title">${tool.title}</div></div>
+                <div class="card-desc">${tool.description}</div>
+                <div class="card-footer-row"><span class="card-category-badge">${tool.category || '工具'}</span></div>
                 <button class="fav-btn ${isFav ? 'favorited' : ''}" data-tool-id="${tool.id}" title="${isFav ? '取消收藏' : '添加收藏'}">${isFav ? '❤️' : '🤍'}</button>
                 <span class="card-arrow">→</span>
               </div>`;
@@ -437,12 +531,21 @@
 
       function renderAll() { renderCategoryTags(); renderCards(); }
 
+      // 卡片点击事件（委托）
       cardsGridEl.addEventListener('click', (e) => {
         const favBtn = e.target.closest('.fav-btn');
-        if (!favBtn) return;
-        e.preventDefault(); e.stopPropagation();
-        toggleFavorite(parseInt(favBtn.dataset.toolId, 10));
-        renderAll();
+        if (favBtn) {
+          e.preventDefault(); e.stopPropagation();
+          toggleFavorite(parseInt(favBtn.dataset.toolId, 10));
+          renderAll();
+          return;
+        }
+        const card = e.target.closest('.card');
+        if (card) {
+          const url = card.dataset.url;
+          const title = card.dataset.title;
+          if (url && title) openTool(url, title);
+        }
       });
 
       searchInput.addEventListener('input', () => {
