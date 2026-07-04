@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+  <title>ASCII 字符画 | 图灵魔法</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --card: #1a1d27;
+      --text: #e8edf2;
+      --text2: #9aa0b4;
+      --accent: #8b7cf7;
+      --accent2: #f97ba8;
+      --border: #2a2e3b;
+      --radius: 14px;
+      --btn-bg: #232738;
+      --input-bg: #1e2130;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif;
+      background: var(--bg); color: var(--text);
+      min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      padding: 20px;
+    }
+    .container {
+      max-width: 900px; width: 100%;
+      background: var(--card); border-radius: 20px;
+      padding: 28px 24px; box-shadow: 0 12px 30px rgba(0,0,0,0.5);
+    }
+    h2 { font-size: 1.6rem; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
+    .subtitle { color: var(--text2); font-size: 0.85rem; margin-bottom: 24px; }
+
+    .upload-box {
+      border: 2px dashed var(--border); border-radius: var(--radius);
+      padding: 30px 20px; text-align: center; cursor: pointer;
+      transition: 0.2s; margin-bottom: 20px; background: var(--input-bg);
+    }
+    .upload-box:hover { border-color: var(--accent); }
+    .upload-box.dragover { border-color: var(--accent2); background: rgba(139,124,247,0.08); }
+    .upload-box.has-file { border-color: var(--accent2); }
+    .upload-box .upload-hint {
+      color: var(--text2); font-size: 0.95rem;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      flex-wrap: wrap;
+    }
+    .upload-box .upload-hint img { max-height: 120px; border-radius: 8px; margin-top: 8px; }
+    .upload-box input[type="file"] { display: none; }
+    .file-name { font-weight: 600; color: var(--accent); word-break: break-all; }
+
+    .controls {
+      display: flex; flex-wrap: wrap; gap: 14px; align-items: center;
+      margin-bottom: 20px;
+    }
+    .control-group {
+      display: flex; align-items: center; gap: 8px;
+    }
+    .control-group label { font-size: 0.85rem; color: var(--text2); white-space: nowrap; }
+    .control-group input[type="range"] {
+      width: 90px; cursor: pointer;
+    }
+    .control-group input[type="color"] {
+      width: 32px; height: 32px; border: none; border-radius: 8px;
+      cursor: pointer; background: transparent; padding: 2px;
+    }
+    .control-group input[type="text"] {
+      background: var(--input-bg); color: var(--text);
+      border: 1px solid var(--border); border-radius: 8px;
+      padding: 6px 10px; font-size: 0.85rem; width: 200px;
+    }
+    .preset-chars {
+      display: flex; gap: 6px; flex-wrap: wrap;
+    }
+    .preset-btn {
+      background: var(--btn-bg); color: var(--text2);
+      border: 1px solid var(--border); padding: 4px 10px;
+      border-radius: 20px; font-size: 0.75rem; cursor: pointer;
+      transition: 0.2s; white-space: nowrap;
+    }
+    .preset-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+    .preview-area {
+      background: #000; border-radius: var(--radius);
+      padding: 12px; overflow: hidden;
+      min-height: 120px; display: flex; align-items: center; justify-content: center;
+      margin-bottom: 16px;
+      box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+    }
+    .preview-area pre {
+      font-family: 'Courier New', monospace;
+      line-height: 1.2; margin: 0;
+      white-space: pre;
+      transition: font-size 0.2s;
+    }
+    .action-buttons {
+      display: flex; gap: 12px; flex-wrap: wrap;
+    }
+    .btn {
+      background: var(--accent); color: #fff; border: none;
+      padding: 12px 24px; border-radius: 30px; font-weight: 600;
+      cursor: pointer; font-size: 0.95rem; transition: 0.2s;
+      display: inline-flex; align-items: center; gap: 6px;
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn:hover { filter: brightness(1.1); }
+    .btn.secondary { background: var(--btn-bg); color: var(--text); }
+    .hint { margin-top: 10px; font-size: 0.8rem; color: var(--text2); text-align: center; }
+
+    @media (max-width: 600px) {
+      body { padding: 10px; }
+      .container { padding: 20px 16px; }
+      h2 { font-size: 1.3rem; }
+      .upload-box { padding: 24px 14px; }
+      .controls { gap: 8px; }
+      .btn { font-size: 0.85rem; padding: 10px 16px; }
+      .control-group input[type="text"] { width: 130px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>🅰️ ASCII 字符画</h2>
+    <p class="subtitle">上传图片 → 自定义字符与颜色 → 生成复古字符画</p>
+
+    <div class="upload-box" id="uploadBox">
+      <div class="upload-hint" id="uploadHint">
+        🖼️ <span>点击或拖放一张图片（任意格式）</span>
+      </div>
+      <input type="file" id="fileInput" accept="image/*" hidden>
+    </div>
+
+    <div class="controls">
+      <div class="control-group">
+        <label>输出宽度</label>
+        <input type="range" id="widthSlider" min="40" max="200" value="80" step="5">
+        <span id="widthValue">80</span>
+      </div>
+      <div class="control-group">
+        <label>字符颜色</label>
+        <input type="color" id="charColor" value="#00ff00">
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="control-group">
+        <label>自定义字符集</label>
+        <input type="text" id="customChars" value="@%#*+=-:. " placeholder="输入字符序列，越暗的像素用越前面的字符">
+      </div>
+    </div>
+    <div class="preset-chars" id="presetChars">
+      <button class="preset-btn" data-chars="@%#*+=-:. ">详细</button>
+      <button class="preset-btn" data-chars="#*+=-:. ">中等</button>
+      <button class="preset-btn" data-chars="+=-:. ">简单</button>
+      <button class="preset-btn" data-chars="█▓▒░ ">方块</button>
+      <button class="preset-btn" data-chars="👀😎🤖👾 ">表情</button>
+    </div>
+
+    <div class="preview-area" id="previewArea">
+      <pre id="asciiOutput" style="color: #0f0;">...</pre>
+    </div>
+
+    <div class="action-buttons">
+      <button class="btn" id="copyBtn">📋 复制文本</button>
+      <button class="btn secondary" id="downloadTxtBtn">💾 下载 TXT</button>
+      <button class="btn secondary" id="downloadImgBtn">🖼️ 下载图片</button>
+    </div>
+    <div class="hint" id="statusHint"></div>
+  </div>
+
+  <script>
+    (function() {
+      document.documentElement.style.colorScheme = 'dark';
+
+      const uploadBox = document.getElementById('uploadBox');
+      const fileInput = document.getElementById('fileInput');
+      const uploadHint = document.getElementById('uploadHint');
+      const asciiOutput = document.getElementById('asciiOutput');
+      const previewArea = document.getElementById('previewArea');
+      const widthSlider = document.getElementById('widthSlider');
+      const widthValue = document.getElementById('widthValue');
+      const charColor = document.getElementById('charColor');
+      const customChars = document.getElementById('customChars');
+      const presetChars = document.getElementById('presetChars');
+      const copyBtn = document.getElementById('copyBtn');
+      const downloadTxtBtn = document.getElementById('downloadTxtBtn');
+      const downloadImgBtn = document.getElementById('downloadImgBtn');
+      const statusHint = document.getElementById('statusHint');
+
+      let originalImage = null;
+      let currentAscii = '';
+
+      uploadBox.addEventListener('click', () => fileInput.click());
+      fileInput.addEventListener('change', (e) => {
+        if (e.target.files.length) handleImage(e.target.files[0]);
+      });
+      uploadBox.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadBox.classList.add('dragover');
+      });
+      uploadBox.addEventListener('dragleave', () => uploadBox.classList.remove('dragover'));
+      uploadBox.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadBox.classList.remove('dragover');
+        if (e.dataTransfer.files.length) handleImage(e.dataTransfer.files[0]);
+      });
+
+      function handleImage(file) {
+        if (!file.type.startsWith('image/')) {
+          alert('请选择一张图片！');
+          return;
+        }
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.src = e.target.result;
+          img.onload = () => {
+            originalImage = img;
+            uploadHint.innerHTML = `<img src="${img.src}" style="max-height:120px; border-radius:8px; display:block; margin:0 auto;"><span class="file-name">${file.name}</span>`;
+            uploadBox.classList.add('has-file');
+            generateAscii();
+            statusHint.textContent = '';
+          };
+        };
+        reader.readAsDataURL(file);
+      }
+
+      function generateAscii() {
+        if (!originalImage) return;
+        const charSet = customChars.value.trim() || ' ';
+        const outputWidth = parseInt(widthSlider.value, 10);
+        const aspectRatio = originalImage.height / originalImage.width;
+        const charAspect = 2; // 字符宽高比补偿
+        const outputHeight = Math.floor(outputWidth * aspectRatio / charAspect);
+
+        const canvas = document.createElement('canvas');
+        canvas.width = outputWidth;
+        canvas.height = outputHeight;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(originalImage, 0, 0, outputWidth, outputHeight);
+        const imageData = ctx.getImageData(0, 0, outputWidth, outputHeight);
+        const pixels = imageData.data;
+
+        let ascii = '';
+        for (let y = 0; y < outputHeight; y++) {
+          let line = '';
+          for (let x = 0; x < outputWidth; x++) {
+            const index = (y * outputWidth + x) * 4;
+            const r = pixels[index];
+            const g = pixels[index + 1];
+            const b = pixels[index + 2];
+            const brightness = 0.299 * r + 0.587 * g + 0.114 * b;
+            const charIndex = Math.floor(brightness / 255 * (charSet.length - 1));
+            line += charSet[charIndex] || charSet[0];
+          }
+          ascii += line + '\n';
+        }
+
+        currentAscii = ascii;
+        asciiOutput.textContent = ascii;
+        asciiOutput.style.color = charColor.value;
+
+        // 自适应字体大小，确保完全显示在预览区内
+        const containerWidth = previewArea.clientWidth - 24;
+        const columns = outputWidth;
+        if (columns > 0 && containerWidth > 0) {
+          const targetFontSize = Math.floor(containerWidth / columns / 0.6);
+          const fontSize = Math.min(18, Math.max(6, targetFontSize));
+          asciiOutput.style.fontSize = fontSize + 'px';
+        }
+      }
+
+      widthSlider.addEventListener('input', () => {
+        widthValue.textContent = widthSlider.value;
+        generateAscii();
+      });
+      charColor.addEventListener('input', () => {
+        asciiOutput.style.color = charColor.value;
+      });
+      customChars.addEventListener('input', generateAscii);
+
+      presetChars.addEventListener('click', (e) => {
+        const btn = e.target.closest('.preset-btn');
+        if (!btn) return;
+        customChars.value = btn.dataset.chars;
+        generateAscii();
+      });
+
+      window.addEventListener('resize', () => {
+        if (currentAscii) {
+          const containerWidth = previewArea.clientWidth - 24;
+          const columns = parseInt(widthSlider.value, 10);
+          if (columns > 0 && containerWidth > 0) {
+            const targetFontSize = Math.floor(containerWidth / columns / 0.6);
+            const fontSize = Math.min(18, Math.max(6, targetFontSize));
+            asciiOutput.style.fontSize = fontSize + 'px';
+          }
+        }
+      });
+
+      copyBtn.addEventListener('click', async () => {
+        if (!currentAscii) return;
+        try {
+          await navigator.clipboard.writeText(currentAscii);
+          statusHint.textContent = '✅ 已复制到剪贴板！';
+        } catch (err) {
+          statusHint.textContent = '❌ 复制失败，请手动复制。';
+        }
+      });
+
+      downloadTxtBtn.addEventListener('click', () => {
+        if (!currentAscii) return;
+        const blob = new Blob([currentAscii], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'ascii_art.txt';
+        a.click();
+        URL.revokeObjectURL(url);
+        statusHint.textContent = '✅ TXT 已下载。';
+      });
+
+      downloadImgBtn.addEventListener('click', () => {
+        if (!currentAscii) return;
+        const lines = currentAscii.split('\n');
+        const fontSize = parseFloat(getComputedStyle(asciiOutput).fontSize) || 12;
+        const lineHeight = fontSize * 1.2;
+        const canvasWidth = fontSize * 0.6 * Math.max(...lines.map(l => l.length));
+        const canvasHeight = lineHeight * lines.length;
+
+        const canvas = document.createElement('canvas');
+        canvas.width = canvasWidth;
+        canvas.height = canvasHeight;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#000';
+        ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+        ctx.font = `${fontSize}px 'Courier New', monospace`;
+        ctx.fillStyle = charColor.value;
+        ctx.textBaseline = 'top';
+
+        lines.forEach((line, i) => {
+          ctx.fillText(line, 0, i * lineHeight);
+        });
+
+        canvas.toBlob((blob) => {
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'ascii_art.png';
+          a.click();
+          URL.revokeObjectURL(url);
+          statusHint.textContent = '✅ 图片已下载。';
+        });
+      });
+
+      statusHint.textContent = '';
+    })();
+  </script>
+</body>
+</html>
