@@ -9,5 +9,4 @@ const toolsData = [
     iconBgClass: 'bg-0',
     accentClass: 'accent-0'
   }
-  // 👇 后续新链接直接加在这里，用逗号分隔
 ];
