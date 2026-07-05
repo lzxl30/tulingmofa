@@ -48,6 +48,15 @@ const toolsData = [
   icon: '🅰️',
   iconBgClass: 'bg-3',
   accentClass: 'accent-3'
-  }
-  // 👇 后续新链接继续加在这里，用逗号分隔
+  },
+  {
+    id: 6,
+    title: '图片盲盒',
+    url: 'https://tphx.pages.dev/',
+    description: '能把图片包装成盲盒',
+    category: 'other',
+    icon: '🎁',
+    iconBgClass: 'bg-5',
+    accentClass: 'accent-5'
+  }// 👇 后续新链接继续加在这里，用逗号分隔
 ];
