@@ -198,7 +198,6 @@
 
     .card-icon-row {
       display: flex; align-items: center; gap: 10px; margin-bottom: 4px;
-      cursor: pointer; /* 提示可点击 */
     }
     .card-icon {
       width: 40px; height: 40px; border-radius: 10px;
@@ -230,12 +229,34 @@
     .fav-btn:hover { background: rgba(249, 123, 168, 0.1); color: #f97ba8; }
     .fav-btn.favorited { color: #f97ba8; filter: drop-shadow(0 0 6px rgba(249, 123, 168, 0.5)); }
 
-    .card-arrow {
-      position: absolute; right: 16px; top: 50%; transform: translateY(-50%);
-      font-size: 1.1rem; color: #5b5f72; transition: var(--transition);
-      opacity: 0.3; pointer-events: none;
+    /* 右上角打开按钮 */
+    .open-btn {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(139, 124, 247, 0.2);
+      border: 1px solid rgba(139, 124, 247, 0.3);
+      color: var(--primary-light);
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.25s;
+      -webkit-tap-highlight-color: transparent;
+      z-index: 10;
+      backdrop-filter: blur(4px);
     }
-    .card:hover .card-arrow { color: var(--primary-light); right: 12px; opacity: 1; }
+    .open-btn:hover {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+      transform: scale(1.08);
+      box-shadow: 0 4px 12px rgba(139, 124, 247, 0.4);
+    }
 
     .empty-state {
       text-align: center; padding: 60px 20px; color: var(--text-secondary);
@@ -302,7 +323,7 @@
       border-color: #6c5ce7;
     }
 
-    /* 回到顶部按钮：完全透明背景，仅图标+文字，垂直居中 */
+    /* 回到顶部按钮 */
     .back-to-top-btn {
       position: absolute;
       left: 16px;
@@ -360,6 +381,13 @@
       .fixed-bottom-bar .channel-btn { padding: 5px 10px; font-size: 0.7rem; }
       .back-to-top-btn { padding: 5px 10px; font-size: 0.7rem; left: 10px; }
       .footer-note { font-size: 0.65rem; }
+      .open-btn {
+        width: 32px;
+        height: 32px;
+        top: 8px;
+        right: 8px;
+        font-size: 1rem;
+      }
     }
 
     @media (min-width: 601px) and (max-width: 1024px) {
@@ -418,7 +446,7 @@
         <span class="btn-icon">📡</span> 米游途
       </a>
     </div>
-    <p class="footer-note">⚡ 图灵魔法 · 若下载不了图片，请尝试浏览器打开链接</p>
+    <p class="footer-note">⚡ 图灵魔法 · 收藏你喜欢的工具 · 点击卡片即可跳转</p>
   </div>
 
   <script src="toolsData.js"></script>
@@ -519,7 +547,8 @@
                 <div class="card-desc">${tool.description}</div>
                 <div class="card-footer-row"><span class="card-category-badge">${tool.category || '工具'}</span></div>
                 <button class="fav-btn ${isFav ? 'favorited' : ''}" data-tool-id="${tool.id}" title="${isFav ? '取消收藏' : '添加收藏'}">${isFav ? '❤️' : '🤍'}</button>
-                <span class="card-arrow">→</span>
+                <!-- 右上角打开按钮 -->
+                <button class="open-btn" data-tool-id="${tool.id}" title="打开工具">▶</button>
               </div>`;
           }).join('');
         }
@@ -527,9 +556,9 @@
 
       function renderAll() { renderCategoryTags(); renderCards(); }
 
-      // 修改点击事件：仅当点击 card-icon-row 区域时才打开链接
+      // 卡片点击事件：仅响应收藏按钮和打开按钮
       cardsGridEl.addEventListener('click', (e) => {
-        // 优先处理收藏按钮
+        // 收藏按钮
         const favBtn = e.target.closest('.fav-btn');
         if (favBtn) {
           e.preventDefault();
@@ -539,22 +568,27 @@
           return;
         }
 
-        // 检查是否点击了可点击区域（图标+标题）
-        const clickableArea = e.target.closest('.card-icon-row');
-        if (!clickableArea) return; // 点击其他地方不触发
-
-        const card = e.target.closest('.card');
-        if (card) {
-          const url = card.dataset.url;
-          const title = card.dataset.title;
-          if (url && title) {
-            if (url.startsWith('http')) {
-              window.open(url, '_blank');
-            } else {
-              window.location.href = url;
+        // 打开按钮
+        const openBtn = e.target.closest('.open-btn');
+        if (openBtn) {
+          e.preventDefault();
+          e.stopPropagation();
+          const card = openBtn.closest('.card');
+          if (card) {
+            const url = card.dataset.url;
+            const title = card.dataset.title;
+            if (url && title) {
+              if (url.startsWith('http')) {
+                window.open(url, '_blank');
+              } else {
+                window.location.href = url;
+              }
             }
           }
+          return;
         }
+
+        // 点击其他区域无响应
       });
 
       searchInput.addEventListener('input', () => {
