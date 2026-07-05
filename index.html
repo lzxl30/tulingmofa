@@ -29,6 +29,7 @@
       --footer-bg: #12141c;
       --input-bg: #1e2130;
       --card-border: transparent;
+      --modal-bg: #1e2130;
     }
 
     body.light-mode {
@@ -52,6 +53,7 @@
       --footer-bg: #f0f1f6;
       --input-bg: #f0f2f8;
       --card-border: #e8ecf5;
+      --modal-bg: #ffffff;
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -220,7 +222,7 @@
     }
     .fav-btn {
       background: transparent; border: none; font-size: 1.3rem; cursor: pointer;
-      padding: 4px;               /* 保留4px内边距，方便点击 */
+      padding: 4px;
       border-radius: 50%;
       transition: 0.2s; color: #7c8096;
       line-height: 1; display: flex; align-items: center; justify-content: center;
@@ -230,7 +232,7 @@
     .fav-btn:hover { background: rgba(249, 123, 168, 0.15); color: #f97ba8; }
     .fav-btn.favorited { color: #f97ba8; filter: drop-shadow(0 0 6px rgba(249, 123, 168, 0.5)); }
 
-    /* 打开按钮：CSS 绘制的宽角 V 形，线条风格，无背景无边框 */
+    /* 打开按钮：CSS 绘制的宽角 V 形 */
     .open-btn {
       display: inline-block;
       width: 10px;
@@ -238,7 +240,7 @@
       border-right: 2.5px solid var(--text-secondary);
       border-bottom: 2.5px solid var(--text-secondary);
       transform: rotate(-45deg);
-      margin-left: auto;          /* 推到最右侧，但不会过于靠边 */
+      margin-left: auto;
       margin-right: 4px;
       cursor: pointer;
       opacity: 0.6;
@@ -315,6 +317,48 @@
     .fixed-bottom-bar .btn-icon { font-size: 1rem; }
     .footer-note { color: var(--text-secondary); font-size: 0.7rem; text-align: center; margin: 0; }
 
+    /* 模态框 */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.75); z-index: 1000;
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px;
+      opacity: 0; visibility: hidden;
+      transition: opacity 0.3s, visibility 0.3s;
+    }
+    .modal-overlay.active { opacity: 1; visibility: visible; }
+    .modal-content {
+      background: var(--modal-bg);
+      border-radius: 16px;
+      width: 100%; max-width: 1100px;
+      height: 85vh; max-height: 800px;
+      display: flex; flex-direction: column;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+      transition: background 0.3s;
+    }
+    .modal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 20px; border-bottom: 1px solid var(--border);
+      font-weight: 600; font-size: 1rem;
+    }
+    .modal-close {
+      background: none; border: none; color: var(--text);
+      font-size: 1.5rem; cursor: pointer; width: 36px; height: 36px;
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      transition: background 0.2s;
+    }
+    .modal-close:hover { background: rgba(255,255,255,0.1); }
+    .modal-iframe-wrap {
+      flex: 1; position: relative; background: #fff;
+    }
+    .modal-iframe-wrap iframe {
+      width: 100%; height: 100%; border: none;
+    }
+    .modal-loading {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+      color: #666; font-size: 0.9rem;
+    }
+
     @media (max-width: 600px) {
       .header-inner { gap: 8px; }
       .logo-text { font-size: 1.1rem; }
@@ -330,6 +374,7 @@
       .back-to-top-btn { padding: 5px 10px; font-size: 0.7rem; left: 10px; }
       .footer-note { font-size: 0.65rem; }
       .open-btn { width: 8px; height: 8px; border-width: 2px; margin-right: 2px; }
+      .modal-content { height: 90vh; max-height: none; }
     }
 
     @media (min-width: 601px) and (max-width: 1024px) {
@@ -375,6 +420,20 @@
     </div>
   </div>
 
+  <!-- 模态框 -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <span id="modalTitle">工具加载中...</span>
+        <button class="modal-close" id="modalClose">✕</button>
+      </div>
+      <div class="modal-iframe-wrap">
+        <div class="modal-loading" id="modalLoading">⏳ 加载中...</div>
+        <iframe id="modalIframe" src="" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-downloads"></iframe>
+      </div>
+    </div>
+  </div>
+
   <!-- 固定在底部的频道条 -->
   <div class="fixed-bottom-bar">
     <button class="back-to-top-btn" id="backToTopBtn" title="回到顶部">
@@ -388,7 +447,7 @@
         <span class="btn-icon">📡</span> 米游途
       </a>
     </div>
-    <p class="footer-note">⚡ 图灵魔法 · 若下载不了图片请尝试浏览器打开</p>
+    <p class="footer-note">⚡ 图灵魔法 · 收藏你喜欢的工具 · 点击卡片即可跳转</p>
   </div>
 
   <script src="toolsData.js"></script>
@@ -424,6 +483,38 @@
       const searchInput = document.getElementById('searchInput');
       const themeToggle = document.getElementById('themeToggle');
       const backToTopBtn = document.getElementById('backToTopBtn');
+
+      // 模态框元素
+      const modalOverlay = document.getElementById('modalOverlay');
+      const modalIframe = document.getElementById('modalIframe');
+      const modalTitle = document.getElementById('modalTitle');
+      const modalLoading = document.getElementById('modalLoading');
+      const modalClose = document.getElementById('modalClose');
+
+      // 打开模态框
+      function openTool(url, title) {
+        modalTitle.textContent = title;
+        modalLoading.style.display = 'block';
+        modalIframe.src = url;
+        modalOverlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        modalIframe.onload = () => { modalLoading.style.display = 'none'; };
+      }
+
+      function closeModal() {
+        modalOverlay.classList.remove('active');
+        modalIframe.src = '';
+        modalLoading.style.display = 'block';
+        document.body.style.overflow = '';
+      }
+
+      modalClose.addEventListener('click', closeModal);
+      modalOverlay.addEventListener('click', (e) => {
+        if (e.target === modalOverlay) closeModal();
+      });
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modalOverlay.classList.contains('active')) closeModal();
+      });
 
       backToTopBtn.addEventListener('click', () => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -499,9 +590,9 @@
 
       function renderAll() { renderCategoryTags(); renderCards(); }
 
-      // 精确的事件处理：只有点击心形按钮或 V 形按钮才触发对应操作
+      // 卡片点击事件：收藏按钮和打开按钮
       cardsGridEl.addEventListener('click', (e) => {
-        // 心形按钮
+        // 收藏按钮
         const favBtn = e.target.closest('.fav-btn');
         if (favBtn) {
           e.preventDefault();
@@ -511,7 +602,7 @@
           return;
         }
 
-        // V 形打开按钮
+        // 打开按钮 -> 模态框
         const openBtn = e.target.closest('.open-btn');
         if (openBtn) {
           e.preventDefault();
@@ -520,13 +611,7 @@
           if (card) {
             const url = card.dataset.url;
             const title = card.dataset.title;
-            if (url && title) {
-              if (url.startsWith('http')) {
-                window.open(url, '_blank');
-              } else {
-                window.location.href = url;
-              }
-            }
+            if (url && title) openTool(url, title);
           }
           return;
         }
