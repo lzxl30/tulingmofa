@@ -58,5 +58,15 @@ const toolsData = [
     icon: '🎁',
     iconBgClass: 'bg-5',
     accentClass: 'accent-5'
+  },
+  {
+    id: 7,
+    title: '二维码生成',
+    url: 'tools/qrcode.html',
+    description: '自建二维码生成器，支持自定义颜色、背景、Logo及圆形码块，下载保存。',
+    category: 'other',
+    icon: '📱',
+    iconBgClass: 'bg-0',
+    accentClass: 'accent-0'
   }// 👇 后续新链接继续加在这里，用逗号分隔
 ];
