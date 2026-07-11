@@ -186,6 +186,8 @@
       text-decoration: none; color: inherit; overflow: hidden;
       -webkit-tap-highlight-color: transparent;
     }
+    .card.dragging { opacity: 0.5; }
+    .card.drag-over { border-color: var(--primary); box-shadow: 0 0 20px rgba(139, 124, 247, 0.4); }
     .card:active { transform: scale(0.98); }
     .card:hover { transform: translateY(-4px); box-shadow: var(--shadow-hover); border-color: var(--primary-light); }
     .card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; opacity: 0.9; }
@@ -549,7 +551,6 @@
       }
 
       function getCategories() {
-        // 顺序：全部、收藏，然后是动态分类，最后可能插入分享分类
         const cats = [builtInCategories[0], builtInCategories[1], ...dynamicCategories];
         if (sharedCategory) {
           cats.unshift(sharedCategory);
@@ -564,13 +565,21 @@
 
       let currentCategory = 'all';
       let searchQuery = '';
-      let favorites = JSON.parse(localStorage.getItem('turingMagicFavorites') || '[]');
+      // 收藏数据改为对象数组：{ id: string, time: number }
+      let favorites = JSON.parse(localStorage.getItem('turingMagicFavorites_v2') || '[]');
 
-      function saveFavorites() { localStorage.setItem('turingMagicFavorites', JSON.stringify(favorites)); }
+      function saveFavorites() { localStorage.setItem('turingMagicFavorites_v2', JSON.stringify(favorites)); }
       function toggleFavorite(toolId) {
-        if (favorites.includes(toolId)) favorites = favorites.filter(id => id !== toolId);
-        else favorites.push(toolId);
+        const index = favorites.findIndex(f => f.id === toolId);
+        if (index !== -1) {
+          favorites.splice(index, 1);
+        } else {
+          favorites.unshift({ id: toolId, time: Date.now() });
+        }
         saveFavorites();
+      }
+      function isFavorite(toolId) {
+        return favorites.some(f => f.id === toolId);
       }
 
       const categoryTagsEl = document.getElementById('categoryTags');
@@ -623,20 +632,42 @@
         applyTheme(isLight ? 'dark' : 'light');
       });
 
+      // 随机排序函数（Fisher–Yates）
+      function shuffleArray(arr) {
+        const a = [...arr];
+        for (let i = a.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [a[i], a[j]] = [a[j], a[i]];
+        }
+        return a;
+      }
+
       function getFilteredTools() {
         let filtered = [...toolsData];
+
         if (currentCategory === 'shared' && sharedToolUrl) {
           filtered = filtered.filter(t => t.url === sharedToolUrl);
         } else if (currentCategory === 'favorites') {
-          filtered = filtered.filter(t => favorites.includes(t.id));
+          // 按收藏时间降序
+          const favIds = favorites.map(f => f.id);
+          filtered = filtered.filter(t => favIds.includes(t.id));
+          // 按 favorites 数组的顺序排序
+          filtered.sort((a, b) => favIds.indexOf(a.id) - favIds.indexOf(b.id));
         } else if (currentCategory !== 'all') {
           filtered = filtered.filter(t => t.category === currentCategory);
         }
 
+        // 搜索过滤
         if (searchQuery.trim()) {
           const q = searchQuery.trim().toLowerCase();
           filtered = filtered.filter(t => t.title.toLowerCase().includes(q) || t.description.toLowerCase().includes(q));
         }
+
+        // 除收藏外随机排序
+        if (currentCategory !== 'favorites' && currentCategory !== 'shared') {
+          filtered = shuffleArray(filtered);
+        }
+
         return filtered;
       }
 
@@ -660,6 +691,76 @@
         });
       }
 
+      // 拖拽排序相关
+      let dragSrcCard = null;
+
+      function setupDragForFavorites() {
+        const cards = cardsGridEl.querySelectorAll('.card');
+        cards.forEach(card => {
+          card.setAttribute('draggable', 'true');
+          card.addEventListener('dragstart', handleDragStart);
+          card.addEventListener('dragover', handleDragOver);
+          card.addEventListener('dragleave', handleDragLeave);
+          card.addEventListener('drop', handleDrop);
+          card.addEventListener('dragend', handleDragEnd);
+        });
+      }
+
+      function handleDragStart(e) {
+        dragSrcCard = this;
+        this.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', this.dataset.toolId);
+      }
+
+      function handleDragOver(e) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        if (this !== dragSrcCard) {
+          this.classList.add('drag-over');
+        }
+      }
+
+      function handleDragLeave(e) {
+        this.classList.remove('drag-over');
+      }
+
+      function handleDrop(e) {
+        e.preventDefault();
+        this.classList.remove('drag-over');
+        if (this === dragSrcCard) return;
+
+        // 交换 DOM 位置
+        const cards = Array.from(cardsGridEl.querySelectorAll('.card'));
+        const srcIndex = cards.indexOf(dragSrcCard);
+        const destIndex = cards.indexOf(this);
+
+        if (srcIndex < destIndex) {
+          cardsGridEl.insertBefore(dragSrcCard, this.nextSibling);
+        } else {
+          cardsGridEl.insertBefore(dragSrcCard, this);
+        }
+
+        // 更新 favorites 数组顺序
+        const srcId = dragSrcCard.dataset.toolId;
+        const destId = this.dataset.toolId;
+        const srcFav = favorites.find(f => f.id === srcId);
+        const destFav = favorites.find(f => f.id === destId);
+        if (srcFav && destFav) {
+          const srcIdx = favorites.indexOf(srcFav);
+          const destIdx = favorites.indexOf(destFav);
+          favorites.splice(srcIdx, 1);
+          favorites.splice(destIdx, 0, srcFav);
+          saveFavorites();
+        }
+      }
+
+      function handleDragEnd(e) {
+        this.classList.remove('dragging');
+        cardsGridEl.querySelectorAll('.card').forEach(c => c.classList.remove('drag-over'));
+        dragSrcCard = null;
+      }
+
       function renderCards() {
         const filtered = getFilteredTools();
         totalCountEl.textContent = toolsData.length;
@@ -671,8 +772,7 @@
           emptyStateEl.style.display = 'none';
           showingInfoEl.textContent = `✨ 显示 ${filtered.length} 个工具`;
           cardsGridEl.innerHTML = filtered.map(tool => {
-            const isFav = favorites.includes(tool.id);
-            // 找到分类名称
+            const isFav = isFavorite(tool.id);
             const catName = getCategories().find(c => c.id === tool.category)?.name || tool.category || '工具';
             return `
               <div class="card ${tool.accentClass}" data-tool-id="${tool.id}" data-url="${tool.url}" data-title="${tool.title}">
@@ -697,6 +797,11 @@
                 </div>
               </div>`;
           }).join('');
+
+          // 如果在收藏分类，开启拖拽排序
+          if (currentCategory === 'favorites') {
+            setupDragForFavorites();
+          }
         }
       }
 
