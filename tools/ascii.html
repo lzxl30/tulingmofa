@@ -175,6 +175,13 @@
     .btn:hover { filter: brightness(1.1); }
     .btn.secondary { background: var(--btn-bg); color: var(--text); }
     .hint { margin-top: 10px; font-size: 0.8rem; color: var(--text2); text-align: center; }
+    .perf-warning {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 0.75rem; color: var(--text2); margin-top: 4px;
+    }
+    .perf-warning::before {
+      content: '⚠️'; font-size: 0.85rem;
+    }
 
     @media (max-width: 600px) {
       body { padding: 8px; }
@@ -191,6 +198,7 @@
       .preset-color-btn { width: 26px; height: 26px; }
       .control-group label { font-size: 0.78rem; }
       .color-section { padding: 10px; }
+      .perf-warning { font-size: 0.7rem; }
     }
 
     @media (min-width: 601px) and (max-width: 1024px) {
@@ -230,6 +238,8 @@
         </select>
       </div>
     </div>
+    <!-- 性能警告提示 -->
+    <div class="perf-warning">输出宽度数值过大可能导致页面卡顿卡死，请合理设置宽度</div>
 
     <div class="controls">
       <div class="control-group">
@@ -418,16 +428,15 @@
       charColor.addEventListener('input',()=>{ charColorValue=charColor.value; updateAllDisplays(); if(colorMode.value==='single') drawPreview(); });
       bgColorInput.addEventListener('input',()=>{ bgColorValue=bgColorInput.value; updateAllDisplays(); drawPreview(); });
 
-      // 宽度和字号处理（不再限制输入时的最小值，失焦后自动修正）
       function getValidWidth(val) {
         let num = parseInt(val);
-        if (isNaN(num) || num < 1) num = 80; // 默认值
+        if (isNaN(num) || num < 1) num = 80;
         return num;
       }
       function getValidFontSize(val) {
         let num = parseInt(val);
         if (isNaN(num)) num = 12;
-        return Math.min(48, Math.max(4, num)); // 限制在4-48之间
+        return Math.min(48, Math.max(4, num));
       }
 
       widthSlider.addEventListener('input', () => {
@@ -435,7 +444,6 @@
         generateAscii();
       });
       widthNumber.addEventListener('input', () => {
-        // 输入过程中只更新滑块和预览，不强制修正值
         let num = parseInt(widthNumber.value);
         if (!isNaN(num)) {
           widthSlider.value = Math.min(num, 300);
