@@ -580,13 +580,16 @@
 
       function getFilteredTools() {
         let filtered = [...toolsData];
-        if (currentCategory === 'favorites') filtered = filtered.filter(t => favorites.includes(t.id));
-        else if (currentCategory !== 'all') {
-          filtered = filtered.filter(t => t.category === currentCategory);
-        }
+
+        // 优先处理分享分类，避免被其他分类过滤
         if (currentCategory === 'shared' && sharedToolUrl) {
           filtered = filtered.filter(t => t.url === sharedToolUrl);
+        } else if (currentCategory === 'favorites') {
+          filtered = filtered.filter(t => favorites.includes(t.id));
+        } else if (currentCategory !== 'all') {
+          filtered = filtered.filter(t => t.category === currentCategory);
         }
+
         if (searchQuery.trim()) {
           const q = searchQuery.trim().toLowerCase();
           filtered = filtered.filter(t => t.title.toLowerCase().includes(q) || t.description.toLowerCase().includes(q));
@@ -659,7 +662,7 @@
         if (favBtn) {
           e.preventDefault();
           e.stopPropagation();
-          toggleFavorite(parseInt(favBtn.dataset.toolId, 10));
+          toggleFavorite(favBtn.dataset.toolId);
           renderAll();
           return;
         }
