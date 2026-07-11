@@ -261,7 +261,6 @@
     .empty-state .empty-icon { font-size: 3.5rem; margin-bottom: 12px; opacity: 0.7; }
     .empty-state p { font-size: 0.95rem; }
 
-    /* 固定在底部的频道条 */
     .fixed-bottom-bar {
       position: fixed;
       bottom: 0; left: 0; right: 0;
@@ -299,7 +298,6 @@
       background: #e6e8f2; border-color: #6c5ce7;
     }
 
-    /* 回到顶部按钮 */
     .back-to-top-btn {
       position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
       display: inline-flex; align-items: center; gap: 4px;
@@ -316,7 +314,6 @@
     .fixed-bottom-bar .btn-icon { font-size: 1rem; }
     .footer-note { color: var(--text-secondary); font-size: 0.7rem; text-align: center; margin: 0; }
 
-    /* 模态框 */
     .modal-overlay {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background: rgba(0,0,0,0.75); z-index: 1000;
@@ -419,7 +416,6 @@
     </div>
   </div>
 
-  <!-- 模态框 -->
   <div class="modal-overlay" id="modalOverlay">
     <div class="modal-content">
       <div class="modal-header">
@@ -433,7 +429,6 @@
     </div>
   </div>
 
-  <!-- 固定在底部的频道条 -->
   <div class="fixed-bottom-bar">
     <button class="back-to-top-btn" id="backToTopBtn" title="回到顶部">
       <span class="btn-icon">⬆️</span> 回顶
@@ -483,7 +478,6 @@
       const themeToggle = document.getElementById('themeToggle');
       const backToTopBtn = document.getElementById('backToTopBtn');
 
-      // 模态框
       const modalOverlay = document.getElementById('modalOverlay');
       const modalIframe = document.getElementById('modalIframe');
       const modalTitle = document.getElementById('modalTitle');
@@ -492,11 +486,7 @@
 
       let isModalOpen = false;
 
-      // 打开工具弹窗
       function openTool(url, title) {
-        // 防止重复打开
-        if (isModalOpen) return;
-
         modalTitle.textContent = title;
         modalLoading.style.display = 'block';
         modalIframe.src = url;
@@ -504,53 +494,40 @@
         document.body.style.overflow = 'hidden';
         modalIframe.onload = () => { modalLoading.style.display = 'none'; };
 
-        // 在历史记录中推入一个状态，使得可以监听返回键
-        history.pushState({ modal: true }, '', window.location.href);
-        isModalOpen = true;
+        if (!isModalOpen) {
+          history.pushState({ modal: true }, '', window.location.href);
+          isModalOpen = true;
+        }
       }
 
-      // 仅执行 DOM 层面的关闭，不触碰历史记录
-      function closeModalDOM() {
+      function closeModal() {
         modalOverlay.classList.remove('active');
         modalIframe.src = '';
         modalLoading.style.display = 'block';
         document.body.style.overflow = '';
-      }
-
-      // 用户主动关闭（点击关闭按钮、遮罩、ESC）
-      function closeModalFromUser() {
-        if (!isModalOpen) return;
-        // 利用 history.back() 触发 popstate，从而让 popstate 处理真正的关闭
-        history.back();
-        // 注意：这里不立即调用 closeModalDOM，因为 popstate 会异步触发
-      }
-
-      // 由 popstate 事件调用的关闭处理
-      function closeModalByHistory() {
-        if (!isModalOpen) return;
-        closeModalDOM();
         isModalOpen = false;
       }
 
-      // 监听浏览器返回键
       window.addEventListener('popstate', (e) => {
-        // 如果当前是弹窗打开状态，则关闭弹窗，并阻止继续回退
         if (isModalOpen) {
-          // 关闭弹窗
-          closeModalByHistory();
-          // 为了防止用户再次按返回键时回退到更早的页面，我们替换当前历史状态为非弹窗状态
-          history.replaceState({ modal: false }, '', window.location.href);
+          closeModal();
+          // 不阻止默认行为，让浏览器弹出历史状态
         }
-        // 如果弹窗未打开，则让浏览器正常处理返回（不做干预）
       });
 
-      // 绑定关闭按钮、遮罩层、ESC
-      modalClose.addEventListener('click', closeModalFromUser);
+      // 主动关闭弹窗：通过 history.back() 触发 popstate，实现一次返回键的效果
+      function closeModalByUser() {
+        if (isModalOpen) {
+          history.back();
+        }
+      }
+
+      modalClose.addEventListener('click', closeModalByUser);
       modalOverlay.addEventListener('click', (e) => {
-        if (e.target === modalOverlay) closeModalFromUser();
+        if (e.target === modalOverlay) closeModalByUser();
       });
       document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && isModalOpen) closeModalFromUser();
+        if (e.key === 'Escape' && isModalOpen) closeModalByUser();
       });
 
       backToTopBtn.addEventListener('click', () => { window.scrollTo({ top: 0, behavior: 'smooth' }); });
