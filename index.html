@@ -73,7 +73,7 @@
     .header {
       background: var(--card-bg);
       border-bottom: 1px solid var(--border);
-      padding: 16px 0;
+      padding: 12px 0;
       position: sticky;
       top: 0;
       z-index: 100;
@@ -91,7 +91,7 @@
       align-items: center;
       justify-content: space-between;
       flex-wrap: wrap;
-      gap: 12px;
+      gap: 8px 12px;
     }
     .logo {
       display: flex;
@@ -147,22 +147,23 @@
     }
     .theme-toggle:hover { background: var(--primary); color: #fff; transform: scale(1.06); }
 
-    .main-container { max-width: 1350px; margin: 0 auto; padding: 20px 20px 20px; }
+    .header-hint {
+      width: 100%;
+      text-align: center;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      font-weight: 500;
+      padding-top: 4px;
+    }
+    .header-hint a {
+      color: var(--primary-light);
+      font-weight: 700;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+    .header-hint a:hover { color: var(--accent-1); }
 
-    .invite-bar {
-      display: flex; justify-content: center; align-items: center;
-      padding: 10px 16px; margin-bottom: 20px;
-      background: rgba(139, 124, 247, 0.08);
-      border: 1px solid rgba(139, 124, 247, 0.15);
-      border-radius: var(--radius);
-      color: var(--text);
-      font-size: 0.8rem; font-weight: 500;
-    }
-    .invite-bar a {
-      color: var(--primary-light); font-weight: 700;
-      text-decoration: underline; text-underline-offset: 2px;
-    }
-    .invite-bar a:hover { color: var(--accent-1); }
+    .main-container { max-width: 1350px; margin: 0 auto; padding: 20px 20px 20px; }
 
     .category-tags { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 24px; }
     .category-tag {
@@ -404,7 +405,7 @@
     }
 
     @media (max-width: 600px) {
-      .header-inner { gap: 8px; }
+      .header-inner { gap: 6px; }
       .logo-text { font-size: 1.1rem; }
       .search-wrap { min-width: 0; flex: 2; }
       .search-wrap input { padding: 10px 14px 10px 36px; font-size: 0.85rem; }
@@ -416,7 +417,7 @@
       .fixed-bottom-bar .channel-row { gap: 8px; }
       .fixed-bottom-bar .channel-btn { padding: 5px 10px; font-size: 0.7rem; }
       .back-to-top-btn { padding: 5px 10px; font-size: 0.7rem; left: 10px; }
-      .invite-bar { font-size: 0.7rem; padding: 8px 12px; }
+      .header-hint { font-size: 0.7rem; }
       .open-btn {
         width: 12px;
         height: 12px;
@@ -455,13 +456,13 @@
         <input type="text" id="searchInput" placeholder="搜索工具..." aria-label="搜索工具">
       </div>
       <button class="theme-toggle" id="themeToggle" title="切换亮色/暗色模式">🌙</button>
+      <div class="header-hint">
+        📢 加入<a href="https://pd.qq.com/s/g22heg9e2?b=9" target="_blank" rel="noopener">趣网吧</a>分享有趣网站，你分享的网站有机会出现在这里哦
+      </div>
     </div>
   </header>
 
   <div class="main-container">
-    <div class="invite-bar">
-      📢 加入<a href="https://pd.qq.com/s/g22heg9e2?b=9" target="_blank" rel="noopener">趣网吧</a>分享有趣网站，你分享的网站有机会出现在这里哦
-    </div>
     <div class="category-tags" id="categoryTags"></div>
     <div class="info-bar" id="infoBar"></div>
     <div class="cards-grid" id="cardsGrid"></div>
