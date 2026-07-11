@@ -55,6 +55,21 @@
       padding: 6px 14px; border-radius: 20px; font-size: 0.8rem; cursor: pointer; transition: 0.2s; white-space: nowrap;
     }
     .upload-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .mode-selector {
+      display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;
+    }
+    .mode-btn {
+      flex: 1; min-width: 80px; text-align: center; padding: 8px 12px;
+      background: var(--btn-bg); color: var(--text2); border: 2px solid transparent;
+      border-radius: 25px; font-size: 0.85rem; cursor: pointer;
+      transition: 0.2s; white-space: nowrap;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .mode-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .mode-btn.active {
+      background: var(--accent); color: #fff; border-color: var(--accent);
+      box-shadow: 0 4px 12px rgba(139, 124, 247, 0.3);
+    }
     .hint-text {
       text-align: center; color: var(--text2); font-size: 0.8rem; margin-bottom: 12px;
     }
@@ -131,8 +146,14 @@
     <input type="file" id="bgFileInput" accept="image/*" hidden>
     <input type="file" id="logoFileInput" accept="image/*" hidden>
 
-    <div class="hint-text">
-      🖱️ 直接拖拽画面移动背景/Logo · 滚轮缩放（向上放大） · 双指手势同样适用
+    <!-- 编辑对象选择按钮 -->
+    <div class="mode-selector">
+      <button class="mode-btn active" id="editBgBtn">🖼️ 编辑背景</button>
+      <button class="mode-btn" id="editLogoBtn">⭐ 编辑Logo</button>
+    </div>
+
+    <div class="hint-text" id="editHint">
+      🖱️ 当前编辑：<strong>背景</strong> · 拖拽/滚轮移动和缩放背景图片
     </div>
 
     <div class="preview-wrapper">
@@ -160,16 +181,34 @@
       const shapeSelect = $('shapeSelect');
       const uploadBgBtn = $('uploadBgBtn'), clearBgBtn = $('clearBgBtn'), bgFileInput = $('bgFileInput');
       const uploadLogoBtn = $('uploadLogoBtn'), clearLogoBtn = $('clearLogoBtn'), logoFileInput = $('logoFileInput');
+      const editBgBtn = $('editBgBtn'), editLogoBtn = $('editLogoBtn'), editHint = $('editHint');
       const downloadBtn = $('downloadBtn'), statusHint = $('statusHint');
 
       let qrModules = null, qrModuleCount = 0;
       let bgImage = null, bgScale = 1, bgOffsetX = 0, bgOffsetY = 0;
       let logoImage = null, logoScale = 1, logoOffsetX = 0, logoOffsetY = 0;
-      let activeEdit = 'none';
+      let activeEdit = 'bg';  // 当前编辑对象：'bg' 或 'logo'
 
       const CANVAS_SIZE = 300;
       let isDragging = false, dragLastX = 0, dragLastY = 0;
       let initialPinchDistance = 0, initialScale = 1;
+
+      // 更新按钮状态和提示文字
+      function updateEditMode(mode) {
+        activeEdit = mode;
+        if (mode === 'bg') {
+          editBgBtn.classList.add('active');
+          editLogoBtn.classList.remove('active');
+          editHint.innerHTML = '🖱️ 当前编辑：<strong>背景</strong> · 拖拽/滚轮移动和缩放背景图片';
+        } else {
+          editBgBtn.classList.remove('active');
+          editLogoBtn.classList.add('active');
+          editHint.innerHTML = '🖱️ 当前编辑：<strong>Logo</strong> · 拖拽/滚轮移动和裁剪Logo图片';
+        }
+      }
+
+      editBgBtn.addEventListener('click', () => updateEditMode('bg'));
+      editLogoBtn.addEventListener('click', () => updateEditMode('logo'));
 
       function updateCanvasSize() {
         const containerW = previewContainer.clientWidth;
@@ -376,19 +415,12 @@
         return { x: (e.clientX - rect.left) * scaleX, y: (e.clientY - rect.top) * scaleY };
       }
 
-      function isInsideLogo(pos) {
-        if (!logoImage) return false;
-        const size = CANVAS_SIZE * 0.18;
-        const half = size / 2;
-        const cx = CANVAS_SIZE / 2, cy = CANVAS_SIZE / 2;
-        return pos.x >= cx - half && pos.x <= cx + half && pos.y >= cy - half && pos.y <= cy + half;
-      }
-
+      // 画布上的交互仍然保留，但优先使用按钮选择的模式
       mainCanvas.addEventListener('mousedown', (e) => {
         const pos = getEventPos(e);
-        if (logoImage && isInsideLogo(pos)) activeEdit = 'logo';
-        else if (bgImage) activeEdit = 'bg';
-        else return;
+        // 如果当前没有对应的图像，则不处理
+        if (activeEdit === 'logo' && !logoImage) return;
+        if (activeEdit === 'bg' && !bgImage) return;
         isDragging = true;
         dragLastX = pos.x; dragLastY = pos.y;
         e.preventDefault();
@@ -406,11 +438,9 @@
 
       mainCanvas.addEventListener('touchstart', (e) => {
         if (e.touches.length === 1) {
-          const pos = getEventPos(e);
-          if (logoImage && isInsideLogo(pos)) activeEdit = 'logo';
-          else if (bgImage) activeEdit = 'bg';
-          else return;
+          if ((activeEdit === 'logo' && !logoImage) || (activeEdit === 'bg' && !bgImage)) return;
           isDragging = true;
+          const pos = getEventPos(e);
           dragLastX = pos.x; dragLastY = pos.y;
         } else if (e.touches.length === 2) {
           isDragging = false;
@@ -504,7 +534,8 @@
             clampBgOffset();
             clearBgBtn.style.display = 'inline-block';
             uploadBgBtn.textContent = '🖼️ 更换背景图';
-            activeEdit = 'bg';
+            // 自动切换到背景编辑模式
+            updateEditMode('bg');
             drawQR();
           };
           img.src = ev.target.result;
@@ -531,7 +562,8 @@
             clampLogoOffset();
             clearLogoBtn.style.display = 'inline-block';
             uploadLogoBtn.textContent = '⭐ 更换Logo';
-            activeEdit = 'logo';
+            // 自动切换到Logo编辑模式
+            updateEditMode('logo');
             drawQR();
           };
           img.src = ev.target.result;
@@ -560,9 +592,10 @@
         }, 'image/png');
       });
 
-      // 默认生成更新后的链接
+      // 初始化默认二维码
       qrInput.value = 'https://pd.qq.com/s/hizrn6r4z';
       generateMatrix('https://pd.qq.com/s/hizrn6r4z');
+      updateEditMode('bg');
     })();
   </script>
 </body>
