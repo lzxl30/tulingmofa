@@ -29,7 +29,6 @@
       --footer-bg: #12141c;
       --input-bg: #1e2130;
       --card-border: transparent;
-      --modal-bg: #1e2130;
     }
 
     body.light-mode {
@@ -53,7 +52,6 @@
       --footer-bg: #f0f1f6;
       --input-bg: #f0f2f8;
       --card-border: #e8ecf5;
-      --modal-bg: #ffffff;
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -199,7 +197,7 @@
     .card.accent-0::before { background: var(--primary); }
 
     .card-icon-row {
-      display: flex; align-items: center; gap: 10px;
+      display: flex; align-items: center; gap: 10px; margin-bottom: 4px;
     }
     .card-icon {
       width: 40px; height: 40px; border-radius: 10px;
@@ -220,25 +218,23 @@
       font-size: 0.7rem; padding: 4px 10px; border-radius: 20px;
       background: rgba(139, 124, 247, 0.12); color: var(--primary-light); font-weight: 500;
     }
-    .fav-btn {
+    .card-actions {
+      display: flex; gap: 6px; align-items: center;
+    }
+    .fav-btn, .share-btn {
       background: transparent; border: none; font-size: 1.3rem; cursor: pointer;
-      padding: 4px;
-      border-radius: 50%;
-      transition: 0.2s; color: #7c8096;
+      padding: 4px; border-radius: 50%; transition: 0.2s; color: #7c8096;
       line-height: 1; display: flex; align-items: center; justify-content: center;
       -webkit-tap-highlight-color: transparent;
-      z-index: 5;
     }
-    .fav-btn:hover { background: rgba(249, 123, 168, 0.15); color: #f97ba8; }
+    .fav-btn:hover, .share-btn:hover { background: rgba(249, 123, 168, 0.15); color: #f97ba8; }
     .fav-btn.favorited { color: #f97ba8; filter: drop-shadow(0 0 6px rgba(249, 123, 168, 0.5)); }
-
-    /* 打开按钮：线条风格，稍大 */
     .open-btn {
       display: inline-block;
-      width: 14px;              /* 增大尺寸 */
-      height: 14px;
-      border-right: 3px solid var(--text-secondary);   /* 线条加粗 */
-      border-bottom: 3px solid var(--text-secondary);
+      width: 10px;
+      height: 10px;
+      border-right: 2.5px solid var(--text-secondary);
+      border-bottom: 2.5px solid var(--text-secondary);
       transform: rotate(-45deg);
       margin-left: auto;
       margin-right: 4px;
@@ -328,7 +324,7 @@
     }
     .modal-overlay.active { opacity: 1; visibility: visible; }
     .modal-content {
-      background: var(--modal-bg);
+      background: var(--card-bg);
       border-radius: 16px;
       width: 100%; max-width: 1100px;
       height: 85vh; max-height: 800px;
@@ -373,7 +369,7 @@
       .fixed-bottom-bar .channel-btn { padding: 5px 10px; font-size: 0.7rem; }
       .back-to-top-btn { padding: 5px 10px; font-size: 0.7rem; left: 10px; }
       .footer-note { font-size: 0.65rem; }
-      .open-btn { width: 12px; height: 12px; border-width: 2.5px; margin-right: 2px; }
+      .open-btn { width: 8px; height: 8px; border-width: 2px; margin-right: 2px; }
       .modal-content { height: 90vh; max-height: none; }
     }
 
@@ -447,7 +443,7 @@
         <span class="btn-icon">📡</span> 米游途
       </a>
     </div>
-    <p class="footer-note">⚡ 图灵魔法 · 若下载不了图片请尝试浏览器打开</p>
+    <p class="footer-note">⚡ 图灵魔法 · 收藏你喜欢的工具 · 点击卡片即可跳转</p>
   </div>
 
   <script src="toolsData.js"></script>
@@ -484,7 +480,7 @@
       const themeToggle = document.getElementById('themeToggle');
       const backToTopBtn = document.getElementById('backToTopBtn');
 
-      // 模态框元素
+      // 模态框
       const modalOverlay = document.getElementById('modalOverlay');
       const modalIframe = document.getElementById('modalIframe');
       const modalTitle = document.getElementById('modalTitle');
@@ -506,18 +502,11 @@
         modalLoading.style.display = 'block';
         document.body.style.overflow = '';
       }
-
       modalClose.addEventListener('click', closeModal);
-      modalOverlay.addEventListener('click', (e) => {
-        if (e.target === modalOverlay) closeModal();
-      });
-      document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && modalOverlay.classList.contains('active')) closeModal();
-      });
+      modalOverlay.addEventListener('click', (e) => { if (e.target === modalOverlay) closeModal(); });
+      document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && modalOverlay.classList.contains('active')) closeModal(); });
 
-      backToTopBtn.addEventListener('click', () => {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      });
+      backToTopBtn.addEventListener('click', () => { window.scrollTo({ top: 0, behavior: 'smooth' }); });
 
       function applyTheme(mode) {
         if (mode === 'light') { document.body.classList.add('light-mode'); themeToggle.textContent = '☀️'; }
@@ -580,7 +569,10 @@
                 <div class="card-desc">${tool.description}</div>
                 <div class="card-footer-row">
                   <span class="card-category-badge">${tool.category || '工具'}</span>
-                  <button class="fav-btn ${isFav ? 'favorited' : ''}" data-tool-id="${tool.id}" title="${isFav ? '取消收藏' : '添加收藏'}">${isFav ? '❤️' : '🤍'}</button>
+                  <div class="card-actions">
+                    <button class="share-btn" data-tool-id="${tool.id}" title="分享工具">📤</button>
+                    <button class="fav-btn ${isFav ? 'favorited' : ''}" data-tool-id="${tool.id}" title="${isFav ? '取消收藏' : '添加收藏'}">${isFav ? '❤️' : '🤍'}</button>
+                  </div>
                 </div>
               </div>`;
           }).join('');
@@ -601,6 +593,22 @@
           return;
         }
 
+        // 分享按钮
+        const shareBtn = e.target.closest('.share-btn');
+        if (shareBtn) {
+          e.preventDefault();
+          e.stopPropagation();
+          const card = shareBtn.closest('.card');
+          if (card) {
+            const url = card.dataset.url;
+            const title = card.dataset.title;
+            if (url && title) {
+              shareTool(url, title);
+            }
+          }
+          return;
+        }
+
         // 打开按钮 -> 模态框
         const openBtn = e.target.closest('.open-btn');
         if (openBtn) {
@@ -610,11 +618,58 @@
           if (card) {
             const url = card.dataset.url;
             const title = card.dataset.title;
-            if (url && title) openTool(url, title);
+            if (url && title) {
+              if (url.startsWith('http')) {
+                openTool(url, title);
+              } else {
+                openTool(window.location.origin + '/' + url, title);
+              }
+            }
           }
           return;
         }
       });
+
+      // 分享功能
+      function shareTool(url, title) {
+        // 构建完整URL
+        let shareUrl = url;
+        if (!url.startsWith('http')) {
+          shareUrl = window.location.origin + '/' + url;
+        }
+        const shareText = `试试这个工具：${title} - ${shareUrl}`;
+
+        // 尝试使用 Web Share API
+        if (navigator.share) {
+          navigator.share({
+            title: title,
+            text: shareText,
+            url: shareUrl,
+          }).catch((err) => {
+            if (err.name !== 'AbortError') {
+              fallbackCopy(shareUrl);
+            }
+          });
+        } else {
+          fallbackCopy(shareUrl);
+        }
+      }
+
+      function fallbackCopy(text) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(() => {
+            alert('链接已复制到剪贴板，可以粘贴分享');
+          }).catch(() => {
+            promptCopy(text);
+          });
+        } else {
+          promptCopy(text);
+        }
+      }
+
+      function promptCopy(text) {
+        window.prompt('复制下面的链接分享给朋友：', text);
+      }
 
       searchInput.addEventListener('input', () => {
         searchQuery = searchInput.value;
