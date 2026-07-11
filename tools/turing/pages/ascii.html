@@ -1,1 +1,597 @@
 
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover, maximum-scale=1.0">
+  <title>ASCII 字符画 | 图灵魔法</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --card: #1a1d27;
+      --text: #e8edf2;
+      --text2: #9aa0b4;
+      --accent: #8b7cf7;
+      --accent2: #f97ba8;
+      --border: #2a2e3b;
+      --radius: 14px;
+      --btn-bg: #232738;
+      --input-bg: #1e2130;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+      background: var(--bg); color: var(--text);
+      min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      padding: 20px;
+    }
+    .container {
+      max-width: 1000px; width: 100%;
+      background: var(--card); border-radius: 20px;
+      padding: 28px 24px; box-shadow: 0 12px 30px rgba(0,0,0,0.5);
+    }
+    h2 { font-size: 1.6rem; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
+    .subtitle { color: var(--text2); font-size: 0.85rem; margin-bottom: 24px; }
+
+    .upload-box {
+      border: 2px dashed var(--border); border-radius: var(--radius);
+      padding: 30px 20px; text-align: center; cursor: pointer;
+      transition: 0.2s; margin-bottom: 20px; background: var(--input-bg);
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+    .upload-box:hover { border-color: var(--accent); }
+    .upload-box.dragover { border-color: var(--accent2); background: rgba(139,124,247,0.08); }
+    .upload-box.has-file { border-color: var(--accent2); }
+    .upload-box .upload-hint {
+      color: var(--text2); font-size: 0.95rem;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      flex-wrap: wrap;
+    }
+    .upload-box .upload-hint img { max-height: 120px; border-radius: 8px; margin-top: 8px; }
+    .upload-box input[type="file"] { display: none; }
+    .file-name { font-weight: 600; color: var(--accent); word-break: break-all; }
+
+    .controls {
+      display: flex; flex-wrap: wrap; gap: 14px; align-items: center;
+      margin-bottom: 16px;
+    }
+    .control-group {
+      display: flex; align-items: center; gap: 8px;
+    }
+    .control-group label { font-size: 0.85rem; color: var(--text2); white-space: nowrap; }
+    .control-group input[type="range"] { width: 110px; cursor: pointer; }
+    .control-group input[type="number"] {
+      width: 80px; background: var(--input-bg); color: var(--text);
+      border: 1px solid var(--border); border-radius: 8px;
+      padding: 6px 8px; font-size: 0.85rem; -moz-appearance: textfield;
+    }
+    .control-group input[type="number"]::-webkit-outer-spin-button,
+    .control-group input[type="number"]::-webkit-inner-spin-button {
+      -webkit-appearance: none; margin: 0;
+    }
+    .control-group input[type="color"] {
+      width: 36px; height: 36px; border: 1px solid var(--border);
+      border-radius: 8px; cursor: pointer; background: transparent; padding: 2px;
+      -webkit-appearance: none;
+    }
+    .control-group input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+    .control-group input[type="color"]::-webkit-color-swatch { border-radius: 6px; border: none; }
+    .control-group input[type="text"] {
+      background: var(--input-bg); color: var(--text);
+      border: 1px solid var(--border); border-radius: 8px;
+      padding: 6px 10px; font-size: 0.85rem; width: 120px;
+    }
+    .control-group select {
+      background: var(--input-bg); color: var(--text);
+      border: 1px solid var(--border); border-radius: 8px;
+      padding: 6px 10px; font-size: 0.85rem;
+      cursor: pointer;
+    }
+    .control-group input[type="checkbox"] { accent-color: var(--accent); width: 16px; height: 16px; }
+
+    .color-section {
+      margin-bottom: 16px;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--input-bg);
+    }
+    .color-section-title {
+      font-weight: 600; font-size: 0.95rem; color: var(--text); margin-bottom: 8px;
+    }
+    .color-palette-wrap {
+      display: flex; flex-direction: column; gap: 12px;
+    }
+    .palette-row {
+      display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-start;
+    }
+    .color-palette-canvas {
+      border: 1px solid var(--border); border-radius: 8px;
+      cursor: crosshair; width: 200px; height: 200px;
+      touch-action: none;
+    }
+    .slider-group {
+      display: flex; align-items: center; gap: 8px;
+    }
+    .apply-buttons {
+      display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap;
+    }
+    .apply-btn {
+      background: var(--btn-bg); color: var(--text);
+      border: 1px solid var(--border); padding: 6px 14px;
+      border-radius: 20px; font-size: 0.8rem; cursor: pointer;
+      transition: 0.2s; white-space: nowrap;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .apply-btn:active { transform: scale(0.95); }
+    .apply-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .preset-colors {
+      display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px;
+    }
+    .preset-color-btn {
+      width: 30px; height: 30px; border-radius: 50%; border: 2px solid var(--border);
+      cursor: pointer; transition: 0.2s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .preset-color-btn:active { transform: scale(0.9); }
+    .preset-color-btn:hover { border-color: var(--accent); transform: scale(1.15); }
+    .preset-chars {
+      display: flex; gap: 6px; flex-wrap: wrap;
+    }
+    .preset-btn {
+      background: var(--btn-bg); color: var(--text2);
+      border: 1px solid var(--border); padding: 4px 10px;
+      border-radius: 20px; font-size: 0.75rem; cursor: pointer;
+      transition: 0.2s; white-space: nowrap;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .preset-btn:active { transform: scale(0.95); }
+    .preset-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+    .preview-area {
+      background: repeating-conic-gradient(#555 0% 25%, #333 0% 50%) 50% / 20px 20px;
+      border-radius: var(--radius);
+      padding: 12px; overflow: hidden;
+      min-height: 120px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 16px;
+      box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+    }
+    canvas {
+      display: block;
+      max-width: 100%; max-height: 60vh;
+      image-rendering: pixelated;
+    }
+    .action-buttons { display: flex; gap: 12px; flex-wrap: wrap; }
+    .btn {
+      background: var(--accent); color: #fff; border: none;
+      padding: 12px 24px; border-radius: 30px; font-weight: 600;
+      cursor: pointer; font-size: 0.95rem; transition: 0.2s;
+      display: inline-flex; align-items: center; gap: 6px;
+      -webkit-tap-highlight-color: transparent;
+      white-space: nowrap;
+    }
+    .btn:active { transform: scale(0.95); }
+    .btn:hover { filter: brightness(1.1); }
+    .btn.secondary { background: var(--btn-bg); color: var(--text); }
+    .hint { margin-top: 10px; font-size: 0.8rem; color: var(--text2); text-align: center; }
+    .perf-warning {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 0.75rem; color: var(--text2); margin-top: 4px;
+    }
+    .perf-warning::before {
+      content: '⚠️'; font-size: 0.85rem;
+    }
+
+    @media (max-width: 600px) {
+      body { padding: 8px; }
+      .container { padding: 20px 14px; border-radius: 14px; }
+      h2 { font-size: 1.3rem; }
+      .upload-box { padding: 20px 12px; }
+      .upload-box .upload-hint { font-size: 0.85rem; }
+      .controls { gap: 8px; }
+      .btn { font-size: 0.85rem; padding: 10px 16px; flex: 1; justify-content: center; }
+      .control-group input[type="range"] { width: 80px; }
+      .control-group input[type="number"] { width: 60px; }
+      .color-palette-canvas { width: 140px; height: 140px; }
+      .palette-row { gap: 8px; }
+      .preset-color-btn { width: 26px; height: 26px; }
+      .control-group label { font-size: 0.78rem; }
+      .color-section { padding: 10px; }
+      .perf-warning { font-size: 0.7rem; }
+    }
+
+    @media (min-width: 601px) and (max-width: 1024px) {
+      .color-palette-canvas { width: 180px; height: 180px; }
+      .btn { padding: 12px 20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>🅰️ ASCII 字符画</h2>
+    <p class="subtitle">上传图片 → 自定义字符、颜色、宽度和大小 → 生成复古/彩色字符画</p>
+
+    <div class="upload-box" id="uploadBox">
+      <div class="upload-hint" id="uploadHint">
+        🖼️ <span>点击或拖放一张图片（任意格式）</span>
+      </div>
+      <input type="file" id="fileInput" accept="image/*" hidden>
+    </div>
+
+    <div class="controls">
+      <div class="control-group">
+        <label>输出宽度</label>
+        <input type="range" id="widthSlider" min="40" max="300" value="80" step="10">
+        <input type="number" id="widthNumber" value="80" step="1">
+      </div>
+      <div class="control-group">
+        <label>字符大小</label>
+        <input type="range" id="fontSizeSlider" min="4" max="48" value="12" step="1">
+        <input type="number" id="fontSizeNumber" value="12" step="1">
+      </div>
+      <div class="control-group">
+        <label>颜色模式</label>
+        <select id="colorMode">
+          <option value="single">单一颜色</option>
+          <option value="image">图片原色</option>
+        </select>
+      </div>
+    </div>
+    <!-- 性能警告提示 -->
+    <div class="perf-warning">输出宽度数值过大可能导致页面卡顿卡死，请合理设置宽度</div>
+
+    <div class="controls">
+      <div class="control-group">
+        <label>取色器类型</label>
+        <select id="pickerType">
+          <option value="native">原生取色器</option>
+          <option value="palette">色盘取色器</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="charColorSection" class="color-section" style="display:none;">
+      <div class="color-section-title">字符颜色</div>
+      <div id="charNativePicker" style="display:flex; align-items:center; gap:12px;">
+        <div class="control-group">
+          <label>颜色</label>
+          <input type="color" id="charColor" value="#00ff00">
+        </div>
+        <span id="charColorHex" style="font-size:0.85rem; color:var(--text2);">#00ff00</span>
+      </div>
+    </div>
+
+    <div class="color-section">
+      <div class="color-section-title">背景颜色</div>
+      <div id="bgNativePicker" style="display:flex; align-items:center; gap:12px;">
+        <div class="control-group">
+          <label>颜色</label>
+          <input type="color" id="bgColor" value="#000000">
+        </div>
+        <span id="bgColorHex" style="font-size:0.85rem; color:var(--text2);">#000000</span>
+      </div>
+      <div class="control-group" style="margin-top:8px;">
+        <label>
+          <input type="checkbox" id="transparentBg"> 透明背景
+        </label>
+      </div>
+    </div>
+
+    <div id="paletteSection" class="color-section" style="display:none;">
+      <div class="color-section-title">色盘选色</div>
+      <div class="color-palette-wrap">
+        <div class="palette-row">
+          <canvas id="colorPalette" class="color-palette-canvas" width="256" height="256"></canvas>
+          <div style="display:flex; flex-direction: column; gap:12px; flex:1; min-width:140px;">
+            <div>
+              <div class="slider-group">
+                <label style="font-size:0.85rem; color:var(--text2);">亮度</label>
+                <input type="range" id="brightnessSlider" min="0" max="100" value="50" step="1" style="flex:1; max-width:140px;">
+                <span id="brightnessValue" style="font-size:0.8rem; color:var(--text2); min-width:32px;">50%</span>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:0.85rem; color:var(--text2);">选中颜色</div>
+              <div style="display:flex; align-items:center; gap:8px; margin-top:4px;">
+                <span id="palettePreview" style="display:inline-block; width:36px; height:36px; background:#00ff00; border:1px solid var(--border); border-radius:6px;"></span>
+                <span id="paletteHex" style="font-size:0.9rem;">#00ff00</span>
+              </div>
+            </div>
+            <div style="font-size:0.8rem; color:var(--text2);">快速选色</div>
+            <div class="preset-colors">
+              <button class="preset-color-btn" style="background:#000000;" data-color="#000000" title="黑色"></button>
+              <button class="preset-color-btn" style="background:#ffffff;" data-color="#ffffff" title="白色"></button>
+              <button class="preset-color-btn" style="background:#ff0000;" data-color="#ff0000" title="红色"></button>
+              <button class="preset-color-btn" style="background:#00ff00;" data-color="#00ff00" title="绿色"></button>
+              <button class="preset-color-btn" style="background:#0000ff;" data-color="#0000ff" title="蓝色"></button>
+            </div>
+            <div class="apply-buttons">
+              <button class="apply-btn" id="applyToChar">应用到字符</button>
+              <button class="apply-btn" id="applyToBg">应用到背景</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="font-size:0.8rem; color:var(--text2); margin-top:8px;">
+        <div>字符颜色: <span id="currentCharColor" style="color:#00ff00;">#00ff00</span></div>
+        <div>背景颜色: <span id="currentBgColor" style="color:#000000;">#000000</span></div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="control-group">
+        <label>自定义字符集</label>
+        <input type="text" id="customChars" value="@%#*+=-:. " placeholder="输入字符序列">
+      </div>
+    </div>
+    <div class="preset-chars" id="presetChars">
+      <button class="preset-btn" data-chars="@%#*+=-:. ">详细</button>
+      <button class="preset-btn" data-chars="#*+=-:. ">中等</button>
+      <button class="preset-btn" data-chars="+=-:. ">简单</button>
+      <button class="preset-btn" data-chars="█▓▒░ ">方块</button>
+      <button class="preset-btn" data-chars="👀😎🤖👾 ">表情</button>
+    </div>
+
+    <div class="preview-area" id="previewArea">
+      <canvas id="asciiCanvas"></canvas>
+    </div>
+
+    <div class="action-buttons">
+      <button class="btn" id="copyBtn">📋 复制文本</button>
+      <button class="btn secondary" id="downloadTxtBtn">💾 下载 TXT</button>
+      <button class="btn secondary" id="downloadImgBtn">🖼️ 下载图片</button>
+    </div>
+    <div class="hint" id="statusHint"></div>
+  </div>
+
+  <script>
+    (function() {
+      const $ = (id) => document.getElementById(id);
+      const uploadBox = $('uploadBox'), fileInput = $('fileInput'), uploadHint = $('uploadHint');
+      const canvas = $('asciiCanvas'), previewArea = $('previewArea');
+      const widthSlider = $('widthSlider'), widthNumber = $('widthNumber');
+      const fontSizeSlider = $('fontSizeSlider'), fontSizeNumber = $('fontSizeNumber');
+      const colorMode = $('colorMode'), transparentBg = $('transparentBg');
+      const customChars = $('customChars'), presetChars = $('presetChars');
+      const copyBtn = $('copyBtn'), downloadTxtBtn = $('downloadTxtBtn'), downloadImgBtn = $('downloadImgBtn'), statusHint = $('statusHint');
+
+      const charColorSection = $('charColorSection'), charColor = $('charColor'), charColorHex = $('charColorHex');
+      const bgColorInput = $('bgColor'), bgColorHex = $('bgColorHex');
+      const bgNativePicker = $('bgNativePicker'), charNativePicker = $('charNativePicker');
+      const paletteSection = $('paletteSection'), pickerType = $('pickerType');
+      const colorPalette = $('colorPalette'), palettePreview = $('palettePreview'), paletteHex = $('paletteHex');
+      const applyToChar = $('applyToChar'), applyToBg = $('applyToBg');
+      const currentCharColor = $('currentCharColor'), currentBgColor = $('currentBgColor');
+      const brightnessSlider = $('brightnessSlider'), brightnessValue = $('brightnessValue');
+
+      let originalImage = null;
+      let currentAscii = '';
+      let currentColors = [];
+      let currentCols = 80, currentRows = 0;
+      let currentFontSize = 12;
+
+      let charColorValue = '#00ff00', bgColorValue = '#000000';
+      let selectedHue = 120, selectedSat = 100, selectedBri = 50;
+
+      function getPaletteColor() { return hslToHex(selectedHue, selectedSat, selectedBri); }
+      function hexToRgb(hex) { hex = hex.replace('#',''); return [parseInt(hex.substr(0,2),16), parseInt(hex.substr(2,2),16), parseInt(hex.substr(4,2),16)]; }
+      function rgbToHsl(r,g,b) {
+        r/=255;g/=255;b/=255; const max=Math.max(r,g,b),min=Math.min(r,g,b);
+        let h=0,s=0,l=(max+min)/2;
+        if(max!==min){ const d=max-min; s=l>0.5?d/(2-max-min):d/(max+min);
+          switch(max){ case r: h=((g-b)/d+(g<b?6:0))/6; break; case g: h=((b-r)/d+2)/6; break; case b: h=((r-g)/d+4)/6; break; }
+        } return [Math.round(h*360), Math.round(s*100), Math.round(l*100)];
+      }
+      function hslToRgb(h,s,l){ h/=360;s/=100;l/=100; let r,g,b;
+        if(s===0){r=g=b=l;}else{ const hue2rgb=(p,q,t)=>{ if(t<0)t+=1;if(t>1)t-=1;if(t<1/6)return p+(q-p)*6*t;if(t<1/2)return q;if(t<2/3)return p+(q-p)*(2/3-t)*6;return p; };
+          const q=l<0.5?l*(1+s):l+s-l*s, p=2*l-q; r=hue2rgb(p,q,h+1/3); g=hue2rgb(p,q,h); b=hue2rgb(p,q,h-1/3);
+        } return [Math.round(r*255),Math.round(g*255),Math.round(b*255)];
+      }
+      function hslToHex(h,s,l){ const rgb=hslToRgb(h,s,l); return '#'+rgb.map(x=>x.toString(16).padStart(2,'0')).join(''); }
+      function updatePaletteFromRGB(r,g,b){ const hsl=rgbToHsl(r,g,b); selectedHue=hsl[0];selectedSat=hsl[1];selectedBri=hsl[2]; brightnessSlider.value=selectedBri; brightnessValue.textContent=selectedBri+'%'; updateAllDisplays(); }
+      function updateAllDisplays() {
+        charColorHex.textContent=charColorValue; bgColorHex.textContent=bgColorValue;
+        currentCharColor.textContent=charColorValue; currentCharColor.style.color=charColorValue;
+        currentBgColor.textContent=bgColorValue; currentBgColor.style.color=bgColorValue;
+        const pal = getPaletteColor(); palettePreview.style.backgroundColor=pal; paletteHex.textContent=pal;
+      }
+
+      function drawPalette(){
+        const ctx=colorPalette.getContext('2d'), w=colorPalette.width, h=colorPalette.height;
+        const imgData=ctx.createImageData(w,h); const d=imgData.data;
+        for(let y=0;y<h;y++){ const sat=(1-y/h)*100; for(let x=0;x<w;x++){ const hue=(x/w)*360; const rgb=hslToRgb(hue,sat,50); const i=(y*w+x)*4; d[i]=rgb[0];d[i+1]=rgb[1];d[i+2]=rgb[2];d[i+3]=255; } }
+        ctx.putImageData(imgData,0,0);
+      }
+      drawPalette();
+
+      function handlePalettePick(clientX,clientY){
+        const rect=colorPalette.getBoundingClientRect();
+        const sx=colorPalette.width/rect.width, sy=colorPalette.height/rect.height;
+        const x=(clientX-rect.left)*sx, y=(clientY-rect.top)*sy;
+        if(x<0||y<0||x>=colorPalette.width||y>=colorPalette.height) return;
+        selectedHue=Math.round((x/colorPalette.width)*360);
+        selectedSat=Math.round((1 - y/colorPalette.height)*100);
+        selectedSat=Math.min(100,Math.max(0,selectedSat));
+        updateAllDisplays();
+      }
+      colorPalette.addEventListener('mousedown',(e)=>{ handlePalettePick(e.clientX,e.clientY); const onMove=(ev)=>handlePalettePick(ev.clientX,ev.clientY); const onUp=()=>{ document.removeEventListener('mousemove',onMove); document.removeEventListener('mouseup',onUp); }; document.addEventListener('mousemove',onMove); document.addEventListener('mouseup',onUp); });
+      colorPalette.addEventListener('touchstart',(e)=>{ e.preventDefault(); handlePalettePick(e.touches[0].clientX,e.touches[0].clientY); const onMove=(ev)=>{ handlePalettePick(ev.touches[0].clientX,ev.touches[0].clientY); }; const onUp=()=>{ document.removeEventListener('touchmove',onMove); document.removeEventListener('touchend',onUp); }; document.addEventListener('touchmove',onMove,{passive:false}); document.addEventListener('touchend',onUp); });
+
+      brightnessSlider.addEventListener('input',()=>{ selectedBri=parseInt(brightnessSlider.value,10); brightnessValue.textContent=selectedBri+'%'; updateAllDisplays(); });
+      document.querySelectorAll('.preset-color-btn').forEach(btn=>{ btn.addEventListener('click',()=>{ const hex=btn.dataset.color; updatePaletteFromRGB(...hexToRgb(hex)); }); });
+      applyToChar.addEventListener('click',()=>{ charColorValue=getPaletteColor(); updateAllDisplays(); if(colorMode.value==='single') drawPreview(); });
+      applyToBg.addEventListener('click',()=>{ bgColorValue=getPaletteColor(); updateAllDisplays(); drawPreview(); });
+
+      colorMode.addEventListener('change',()=>{ const single=colorMode.value==='single'; charColorSection.style.display=single?'block':'none'; if(pickerType.value==='palette') applyToChar.style.display=single?'inline-block':'none'; generateAscii(); });
+      pickerType.addEventListener('change',()=>{ const isNative=pickerType.value==='native'; charNativePicker.style.display=isNative?'flex':'none'; bgNativePicker.style.display=isNative?'flex':'none'; paletteSection.style.display=isNative?'none':'block'; if(!isNative){ const [r,g,b]=hexToRgb(charColorValue); updatePaletteFromRGB(r,g,b); } applyToChar.style.display=(!isNative && colorMode.value==='single')?'inline-block':'none'; });
+      charColor.addEventListener('input',()=>{ charColorValue=charColor.value; updateAllDisplays(); if(colorMode.value==='single') drawPreview(); });
+      bgColorInput.addEventListener('input',()=>{ bgColorValue=bgColorInput.value; updateAllDisplays(); drawPreview(); });
+
+      function getValidWidth(val) {
+        let num = parseInt(val);
+        if (isNaN(num) || num < 1) num = 80;
+        return num;
+      }
+      function getValidFontSize(val) {
+        let num = parseInt(val);
+        if (isNaN(num)) num = 12;
+        return Math.min(48, Math.max(4, num));
+      }
+
+      widthSlider.addEventListener('input', () => {
+        widthNumber.value = parseInt(widthSlider.value, 10);
+        generateAscii();
+      });
+      widthNumber.addEventListener('input', () => {
+        let num = parseInt(widthNumber.value);
+        if (!isNaN(num)) {
+          widthSlider.value = Math.min(num, 300);
+          currentCols = Math.max(1, num);
+          generateAscii();
+        }
+      });
+      widthNumber.addEventListener('blur', () => {
+        const valid = getValidWidth(widthNumber.value);
+        widthNumber.value = valid;
+        widthSlider.value = Math.min(valid, 300);
+        generateAscii();
+      });
+
+      fontSizeSlider.addEventListener('input', () => {
+        fontSizeNumber.value = parseInt(fontSizeSlider.value, 10);
+        currentFontSize = parseInt(fontSizeSlider.value, 10);
+        drawPreview();
+      });
+      fontSizeNumber.addEventListener('input', () => {
+        let num = parseInt(fontSizeNumber.value);
+        if (!isNaN(num)) {
+          fontSizeSlider.value = Math.min(Math.max(num, 4), 48);
+          currentFontSize = num;
+          drawPreview();
+        }
+      });
+      fontSizeNumber.addEventListener('blur', () => {
+        const valid = getValidFontSize(fontSizeNumber.value);
+        fontSizeNumber.value = valid;
+        fontSizeSlider.value = valid;
+        currentFontSize = valid;
+        drawPreview();
+      });
+
+      uploadBox.addEventListener('click',()=>fileInput.click());
+      fileInput.addEventListener('change',(e)=>{ if(e.target.files.length) handleImage(e.target.files[0]); });
+      uploadBox.addEventListener('dragover',(e)=>{ e.preventDefault(); uploadBox.classList.add('dragover'); });
+      uploadBox.addEventListener('dragleave',()=>uploadBox.classList.remove('dragover'));
+      uploadBox.addEventListener('drop',(e)=>{ e.preventDefault(); uploadBox.classList.remove('dragover'); if(e.dataTransfer.files.length) handleImage(e.dataTransfer.files[0]); });
+
+      function handleImage(file){
+        if(!file.type.startsWith('image/')){ alert('请选择一张图片！'); return; }
+        const reader=new FileReader();
+        reader.onload=(e)=>{ const img=new Image(); img.src=e.target.result; img.onload=()=>{ originalImage=img; uploadHint.innerHTML=`<img src="${img.src}" style="max-height:120px; border-radius:8px; display:block; margin:0 auto;"><span class="file-name">${file.name}</span>`; uploadBox.classList.add('has-file'); generateAscii(); statusHint.textContent=''; }; };
+        reader.readAsDataURL(file);
+      }
+
+      function generateAscii(){
+        if(!originalImage) return;
+        const charSet=customChars.value.trim()||' ';
+        const ow = Math.max(1, currentCols || getValidWidth(widthNumber.value));
+        const oh = Math.floor(ow * (originalImage.height / originalImage.width) / 2);
+        currentCols = ow; currentRows = oh;
+        const tc=document.createElement('canvas'); tc.width=ow; tc.height=oh; const tctx=tc.getContext('2d'); tctx.drawImage(originalImage,0,0,ow,oh);
+        const imgData=tctx.getImageData(0,0,ow,oh); const pixels=imgData.data;
+        const colors=[]; let ascii='';
+        for(let y=0;y<oh;y++){ let line=''; const row=[]; for(let x=0;x<ow;x++){ const idx=(y*ow+x)*4; const r=pixels[idx],g=pixels[idx+1],b=pixels[idx+2],a=pixels[idx+3]; const bright=0.299*r+0.587*g+0.114*b; const ci=Math.floor(bright/255*(charSet.length-1)); line+=charSet[ci]||charSet[0]; row.push([r,g,b,a]); } ascii+=line+'\n'; colors.push(row); }
+        currentAscii=ascii; currentColors=colors;
+        drawPreview();
+      }
+
+      function drawPreview(){
+        if(!originalImage||currentCols===0) return;
+        const containerWidth = previewArea.clientWidth - 24;
+        const containerHeight = previewArea.clientHeight - 24 || 400;
+        if(containerWidth <= 0) return;
+
+        const fontSize = currentFontSize;
+        const charWidth = fontSize * 0.6;
+        const lineHeight = fontSize * 1.2;
+        const actualWidth = currentCols * charWidth;
+        const actualHeight = currentRows * lineHeight;
+
+        const scale = Math.min(containerWidth / actualWidth, containerHeight / actualHeight, 1);
+
+        canvas.width = containerWidth;
+        canvas.height = containerHeight;
+        canvas.style.width = containerWidth + 'px';
+        canvas.style.height = containerHeight + 'px';
+
+        const ctx = canvas.getContext('2d');
+        if(transparentBg.checked) ctx.clearRect(0,0,containerWidth,containerHeight);
+        else { ctx.fillStyle = bgColorValue; ctx.fillRect(0,0,containerWidth,containerHeight); }
+
+        ctx.save();
+        ctx.translate((containerWidth - actualWidth * scale) / 2, (containerHeight - actualHeight * scale) / 2);
+        ctx.scale(scale, scale);
+        ctx.font = `${fontSize}px 'Courier New', monospace`;
+        ctx.textBaseline = 'top';
+
+        const single = colorMode.value === 'single';
+        for(let y=0; y<currentRows; y++){
+          const line = currentAscii.split('\n')[y] || '';
+          for(let x=0; x<currentCols; x++){
+            const ch = line[x] || ' ';
+            if(single) ctx.fillStyle = charColorValue;
+            else { const [r,g,b,a=255] = (currentColors[y] && currentColors[y][x]) || [0,255,0,255]; ctx.fillStyle = `rgba(${r},${g},${b},${a/255})`; }
+            ctx.fillText(ch, x * charWidth, y * lineHeight);
+          }
+        }
+        ctx.restore();
+      }
+
+      transparentBg.addEventListener('change', drawPreview);
+      customChars.addEventListener('input', generateAscii);
+      presetChars.addEventListener('click',(e)=>{ const btn=e.target.closest('.preset-btn'); if(!btn) return; customChars.value=btn.dataset.chars; generateAscii(); });
+      window.addEventListener('resize',()=>{ if(originalImage) drawPreview(); });
+
+      copyBtn.addEventListener('click',async ()=>{ if(!currentAscii) return; try{ await navigator.clipboard.writeText(currentAscii); statusHint.textContent='✅ 已复制到剪贴板！'; } catch{ statusHint.textContent='❌ 复制失败'; } });
+      downloadTxtBtn.addEventListener('click',()=>{ if(!currentAscii) return; const blob=new Blob([currentAscii],{type:'text/plain'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='ascii_art.txt'; a.click(); statusHint.textContent='✅ TXT 已下载。'; });
+      downloadImgBtn.addEventListener('click',()=>{
+        if(!originalImage || currentCols===0) return;
+        const fontSize = currentFontSize;
+        const charWidth = fontSize * 0.6;
+        const lineHeight = fontSize * 1.2;
+        const w = Math.ceil(currentCols * charWidth);
+        const h = Math.ceil(currentRows * lineHeight);
+        const offCanvas = document.createElement('canvas');
+        offCanvas.width = w; offCanvas.height = h;
+        const ctx = offCanvas.getContext('2d');
+        if(transparentBg.checked) ctx.clearRect(0,0,w,h);
+        else { ctx.fillStyle = bgColorValue; ctx.fillRect(0,0,w,h); }
+        ctx.font = `${fontSize}px 'Courier New', monospace`;
+        ctx.textBaseline = 'top';
+        const single = colorMode.value === 'single';
+        for(let y=0; y<currentRows; y++){
+          const line = currentAscii.split('\n')[y] || '';
+          for(let x=0; x<currentCols; x++){
+            const ch = line[x] || ' ';
+            if(single) ctx.fillStyle = charColorValue;
+            else { const [r,g,b,a=255] = (currentColors[y] && currentColors[y][x]) || [0,255,0,255]; ctx.fillStyle = `rgba(${r},${g},${b},${a/255})`; }
+            ctx.fillText(ch, x * charWidth, y * lineHeight);
+          }
+        }
+        offCanvas.toBlob(blob => {
+          const a = document.createElement('a');
+          a.href = URL.createObjectURL(blob);
+          a.download = 'ascii_art.png';
+          a.click();
+          statusHint.textContent = '✅ 图片已下载。';
+        }, 'image/png');
+      });
+
+      charColorSection.style.display='flex'; pickerType.value='native'; paletteSection.style.display='none'; applyToChar.style.display='inline-block';
+      updateAllDisplays(); currentFontSize=12; statusHint.textContent='';
+    })();
+  </script>
+</body>
+</html>
