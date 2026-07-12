@@ -73,22 +73,40 @@
     .header {
       background: var(--card-bg);
       border-bottom: 1px solid var(--border);
-      position: sticky; top: 0; z-index: 100;
-      backdrop-filter: blur(16px); background: rgba(18, 20, 28, 0.88);
-      box-shadow: 0 1px 8px rgba(0, 0, 0, 0.3); transition: background 0.3s;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(16px);
+      background: rgba(18, 20, 28, 0.88);
+      box-shadow: 0 1px 8px rgba(0, 0, 0, 0.3);
+      transition: background 0.3s;
     }
     body.light-mode .header { background: rgba(255, 255, 255, 0.88); }
     .header-top {
-      max-width: 1350px; margin: 0 auto; padding: 10px 20px 6px;
-      display: flex; align-items: center; justify-content: space-between;
-      flex-wrap: wrap; gap: 8px 12px;
+      max-width: 1350px;
+      margin: 0 auto;
+      padding: 10px 20px 6px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px 12px;
     }
-    .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text); flex-shrink: 0; }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--text);
+      flex-shrink: 0;
+    }
     .logo-icon {
-      width: 36px; height: 36px; border-radius: 10px;
+      width: 36px; height: 36px;
+      border-radius: 10px;
       background: linear-gradient(135deg, #8b7cf7, #f97ba8);
       display: flex; align-items: center; justify-content: center;
-      font-size: 20px; color: #fff; box-shadow: 0 4px 12px rgba(139, 124, 247, 0.4);
+      font-size: 20px; color: #fff;
+      box-shadow: 0 4px 12px rgba(139, 124, 247, 0.4);
     }
     .logo-text {
       font-size: 1.2rem; font-weight: 700; letter-spacing: -0.3px;
@@ -98,102 +116,195 @@
     }
     .logo-sub { font-size: 0.6rem; color: var(--text-secondary); font-weight: 400; margin-top: 1px; display: none; }
 
-    .search-wrap { position: relative; flex: 1; max-width: 360px; min-width: 160px; margin: 0 8px; }
+    .search-wrap {
+      position: relative; flex: 1; max-width: 360px; min-width: 160px; margin: 0 8px;
+    }
     .search-wrap input {
-      width: 100%; padding: 9px 16px 9px 38px; border: 2px solid var(--border);
-      border-radius: 50px; font-size: 0.85rem; outline: none;
-      transition: var(--transition); background: var(--input-bg); color: var(--text);
+      width: 100%; padding: 9px 16px 9px 38px;
+      border: 2px solid var(--border); border-radius: 50px;
+      font-size: 0.85rem; outline: none;
+      transition: var(--transition);
+      background: var(--input-bg); color: var(--text);
       -webkit-appearance: none;
     }
     .search-wrap input:focus {
-      border-color: var(--primary-light); box-shadow: 0 0 0 3px rgba(139, 124, 247, 0.12);
+      border-color: var(--primary-light);
+      box-shadow: 0 0 0 3px rgba(139, 124, 247, 0.12);
       background: var(--card-bg);
     }
-    .search-wrap .search-icon { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); font-size: 0.95rem; color: #888ca0; pointer-events: none; }
+    .search-wrap .search-icon {
+      position: absolute; left: 13px; top: 50%; transform: translateY(-50%);
+      font-size: 0.95rem; color: #888ca0; pointer-events: none;
+    }
 
     .theme-toggle {
       background: var(--tag-bg); border: none; color: var(--text);
-      width: 36px; height: 36px; border-radius: 50%; font-size: 1.1rem;
-      display: flex; align-items: center; justify-content: center;
-      cursor: pointer; transition: var(--transition); box-shadow: 0 2px 8px rgba(0,0,0,0.1); flex-shrink: 0;
+      width: 36px; height: 36px; border-radius: 50%;
+      font-size: 1.1rem; display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: var(--transition);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1); flex-shrink: 0;
     }
     .theme-toggle:hover { background: var(--primary); color: #fff; transform: scale(1.06); }
 
     .header-hint {
       max-width: 1350px; margin: 0 auto; padding: 0 20px 4px;
-      text-align: center; font-size: 0.7rem; color: var(--text-secondary); font-weight: 500;
+      text-align: center; font-size: 0.7rem; color: var(--text-secondary);
+      font-weight: 500;
     }
-    .header-hint a { color: var(--primary-light); font-weight: 700; text-decoration: underline; text-underline-offset: 2px; }
+    .header-hint a {
+      color: var(--primary-light); font-weight: 700;
+      text-decoration: underline; text-underline-offset: 2px;
+    }
     .header-hint a:hover { color: var(--accent-1); }
 
+    /* ========== 分类标签栏 ========== */
     .category-bar-wrap {
-      position: relative; max-width: 1350px; margin: 0 auto; padding: 0 0 4px 16px;
-      display: flex; align-items: center;
+      position: relative;
+      max-width: 1350px;
+      margin: 0 auto;
+      padding: 0 0 4px 16px;
+      display: flex;
+      align-items: center;
     }
     .category-scroll {
-      flex: 1; display: flex; flex-wrap: nowrap; gap: 6px;
-      max-height: 38px; overflow-x: auto; overflow-y: hidden;
+      flex: 1;
+      display: flex;
+      flex-wrap: nowrap;
+      gap: 6px;
+      max-height: 38px;
+      overflow-x: auto;
+      overflow-y: hidden;
       transition: max-height 0.35s ease, flex-wrap 0s 0.35s;
-      scrollbar-width: none; -ms-overflow-style: none; -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      -webkit-overflow-scrolling: touch;
     }
     .category-scroll::-webkit-scrollbar { display: none; }
     .category-scroll.expanded {
-      flex-wrap: wrap; max-height: 260px; overflow-y: auto; overflow-x: hidden;
-      transition: max-height 0.35s ease, flex-wrap 0s; padding-bottom: 4px;
+      flex-wrap: wrap;
+      max-height: 260px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      transition: max-height 0.35s ease, flex-wrap 0s;
+      padding-bottom: 4px;
     }
     .category-tag {
-      display: inline-flex; align-items: center; gap: 4px; padding: 6px 10px;
-      font-size: 0.85rem; font-weight: 500; color: var(--text-secondary);
-      cursor: pointer; white-space: nowrap; user-select: none;
-      border: none; background: none; border-radius: 6px;
-      transition: color 0.2s; -webkit-tap-highlight-color: transparent; flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 6px 10px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      cursor: pointer;
+      white-space: nowrap;
+      user-select: none;
+      border: none;
+      background: none;
+      border-radius: 6px;
+      transition: color 0.2s;
+      -webkit-tap-highlight-color: transparent;
+      flex-shrink: 0;
+      position: relative;
     }
     .category-tag:active { opacity: 0.7; }
     .category-tag:hover { color: var(--text); }
-    .category-tag.active { color: var(--primary-light); font-weight: 700; }
-    .category-tag.active::after {
-      content: ''; position: absolute; bottom: -2px; left: 50%; transform: translateX(-50%);
-      width: 60%; height: 2px; background: var(--primary-light); border-radius: 2px;
+    .category-tag.active {
+      color: var(--primary-light);
+      font-weight: 700;
     }
-    .category-tag .count { font-size: 0.7rem; color: var(--text-secondary); font-weight: 400; margin-left: 1px; }
+    .category-tag.active::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60%;
+      height: 2px;
+      background: var(--primary-light);
+      border-radius: 2px;
+    }
+    .category-tag .count {
+      font-size: 0.7rem;
+      color: var(--text-secondary);
+      font-weight: 400;
+      margin-left: 1px;
+    }
     .category-tag.active .count { color: var(--primary-light); }
     .category-tag.dragging { opacity: 0.4; }
     .category-tag.drag-over { background: rgba(139,124,247,0.15); border-radius: 6px; }
-    .drag-handle { cursor: grab; color: var(--text-secondary); font-size: 0.8rem; margin-right: 2px; opacity: 0.5; }
+    .drag-handle {
+      cursor: grab; color: var(--text-secondary); font-size: 0.8rem;
+      margin-right: 2px; opacity: 0.5;
+    }
     .category-tag:hover .drag-handle { opacity: 1; }
-    .sort-hint { font-size: 0.68rem; color: var(--text-secondary); text-align: center; padding: 6px 0 2px; opacity: 0.7; display: none; }
+    .sort-hint {
+      font-size: 0.68rem; color: var(--text-secondary);
+      text-align: center; padding: 6px 0 2px; opacity: 0.7;
+      display: none;
+    }
     .category-scroll.expanded .sort-hint { display: block; }
 
+    /* 渐隐遮罩 */
     .fade-mask {
-      pointer-events: none; position: absolute; right: 0; top: 0; bottom: 0; width: 70px;
-      background: linear-gradient(to left, var(--bg) 0%, transparent 100%); z-index: 2;
+      pointer-events: none;
+      position: absolute;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      width: 70px;
+      background: linear-gradient(to left, var(--bg) 0%, transparent 100%);
+      z-index: 2;
       transition: opacity 0.3s;
     }
-    body.light-mode .fade-mask { background: linear-gradient(to left, var(--bg) 0%, transparent 100%); }
-    .category-scroll.expanded ~ .fade-mask, .fade-mask.hidden { opacity: 0; pointer-events: none; }
+    body.light-mode .fade-mask {
+      background: linear-gradient(to left, var(--bg) 0%, transparent 100%);
+    }
+    .category-scroll.expanded ~ .fade-mask,
+    .fade-mask.hidden { opacity: 0; pointer-events: none; }
 
     .category-expand-btn {
-      flex-shrink: 0; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center;
-      background: none; border: none; color: var(--text-secondary); cursor: pointer; transition: 0.2s;
-      -webkit-tap-highlight-color: transparent; border-radius: 6px; z-index: 5;
+      flex-shrink: 0;
+      width: 34px; height: 34px;
+      display: flex; align-items: center; justify-content: center;
+      background: none; border: none;
+      color: var(--text-secondary);
+      cursor: pointer; transition: 0.2s;
+      -webkit-tap-highlight-color: transparent;
+      border-radius: 6px;
+      z-index: 5;
     }
     .category-expand-btn:hover { color: var(--text); background: rgba(255,255,255,0.05); }
     .category-expand-btn:active { opacity: 0.7; }
     .arrow-v {
-      display: inline-block; width: 10px; height: 10px;
-      border-right: 2.5px solid currentColor; border-bottom: 2.5px solid currentColor;
-      transform: rotate(45deg); transition: transform 0.25s;
+      display: inline-block;
+      width: 10px; height: 10px;
+      border-right: 2.5px solid currentColor;
+      border-bottom: 2.5px solid currentColor;
+      transform: rotate(45deg);
+      transition: transform 0.25s;
     }
-    .category-expand-btn.open .arrow-v { transform: rotate(-135deg); }
+    .category-expand-btn.open .arrow-v {
+      transform: rotate(-135deg);
+    }
 
+    /* ========== 主内容区 ========== */
     .main-container { max-width: 1350px; margin: 0 auto; padding: 16px 20px 20px; }
-    .info-bar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
-    .drag-hint { font-size: 0.8rem; color: var(--primary-light); font-weight: 500; display: flex; align-items: center; gap: 4px; }
+
+    .info-bar {
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 8px; margin-bottom: 20px;
+    }
+    .drag-hint {
+      font-size: 0.8rem; color: var(--primary-light); font-weight: 500;
+      display: flex; align-items: center; gap: 4px;
+    }
 
     .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 18px; }
     .card {
-      background: var(--card-bg); border-radius: var(--radius); padding: 20px 20px 16px;
-      box-shadow: var(--shadow); transition: var(--transition);
+      background: var(--card-bg); border-radius: var(--radius);
+      padding: 20px 20px 16px; box-shadow: var(--shadow);
+      transition: var(--transition);
       border: 1px solid var(--card-border); position: relative;
       display: flex; flex-direction: column; gap: 8px;
       text-decoration: none; color: inherit; overflow: hidden;
@@ -230,7 +341,9 @@
     .card-category-badge {
       font-size: 0.7rem; padding: 4px 10px; border-radius: 20px;
       background: rgba(139, 124, 247, 0.12); color: var(--primary-light);
-      font-weight: 500; cursor: pointer; border: none; transition: background 0.2s, color 0.2s;
+      font-weight: 500; cursor: pointer; border: none;
+      transition: background 0.2s, color 0.2s;
+      text-decoration: none; -webkit-tap-highlight-color: transparent;
     }
     .card-category-badge:hover { background: var(--primary); color: #fff; }
     .card-actions { display: flex; gap: 8px; align-items: center; }
@@ -239,6 +352,7 @@
       background: transparent; border: none; cursor: pointer;
       padding: 4px 8px; border-radius: 10px; transition: 0.2s;
       color: #7c8096; font-size: 1.1rem;
+      -webkit-tap-highlight-color: transparent;
     }
     .action-btn span.icon { font-size: 1.2rem; }
     .action-btn span.label { font-size: 0.65rem; font-weight: 500; }
@@ -246,9 +360,12 @@
     .fav-btn.favorited { color: #f97ba8; }
     .open-btn {
       display: inline-block; width: 14px; height: 14px;
-      border-right: 3px solid var(--text-secondary); border-bottom: 3px solid var(--text-secondary);
+      border-right: 3px solid var(--text-secondary);
+      border-bottom: 3px solid var(--text-secondary);
       transform: rotate(-45deg); margin-left: auto; margin-right: 6px;
-      cursor: pointer; opacity: 0.6; transition: all 0.2s; flex-shrink: 0; align-self: center;
+      cursor: pointer; opacity: 0.6; transition: all 0.2s;
+      flex-shrink: 0; align-self: center;
+      -webkit-tap-highlight-color: transparent;
     }
     .open-btn:hover { border-color: var(--primary-light); opacity: 1; transform: rotate(-45deg) scale(1.2); }
 
@@ -276,6 +393,7 @@
       padding: 6px 14px; border-radius: 50px;
       font-weight: 600; font-size: 0.8rem; text-decoration: none;
       transition: all 0.25s; box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      -webkit-tap-highlight-color: transparent;
     }
     .fixed-bottom-bar .channel-btn:hover {
       background: linear-gradient(135deg, #3d3f5c, #2d2f44);
@@ -306,12 +424,14 @@
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background: rgba(0,0,0,0.75); z-index: 1000;
       display: flex; align-items: center; justify-content: center;
-      padding: 0; opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s;
+      padding: 0; opacity: 0; visibility: hidden;
+      transition: opacity 0.3s, visibility 0.3s;
     }
     .modal-overlay.active { opacity: 1; visibility: visible; }
     .modal-content {
-      background: var(--card-bg); border-radius: 0; width: 100%; height: 100%;
-      max-height: 100vh; display: flex; flex-direction: column;
+      background: var(--card-bg); border-radius: 0;
+      width: 100%; height: 100%; max-height: 100vh;
+      display: flex; flex-direction: column;
       box-shadow: 0 20px 50px rgba(0,0,0,0.6);
     }
     .modal-header {
@@ -321,10 +441,11 @@
     }
     .modal-close {
       display: inline-flex; align-items: center; gap: 6px;
-      background: var(--primary); border: none; color: #fff;
-      font-size: 0.95rem; font-weight: 600; cursor: pointer;
-      padding: 10px 20px; border-radius: 25px; transition: all 0.2s;
-      letter-spacing: 0.3px; box-shadow: 0 4px 12px rgba(139, 124, 247, 0.3);
+      background: var(--primary); border: none;
+      color: #fff; font-size: 0.95rem; font-weight: 600;
+      cursor: pointer; padding: 10px 20px; border-radius: 25px;
+      transition: all 0.2s; letter-spacing: 0.3px;
+      box-shadow: 0 4px 12px rgba(139, 124, 247, 0.3);
     }
     .modal-close:hover { background: var(--primary-light); transform: translateY(-1px); box-shadow: 0 6px 16px rgba(139, 124, 247, 0.5); }
     body.light-mode .modal-close { background: #6c5ce7; color: #fff; }
@@ -353,7 +474,9 @@
       .modal-close { padding: 8px 16px; font-size: 0.85rem; }
       .fade-mask { width: 55px; }
     }
-    @media (min-width: 601px) and (max-width: 1024px) { .cards-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (min-width: 601px) and (max-width: 1024px) {
+      .cards-grid { grid-template-columns: repeat(2, 1fr); }
+    }
     @keyframes fadeInUp {
       from { opacity: 0; transform: translateY(16px); }
       to { opacity: 1; transform: translateY(0); }
@@ -364,15 +487,25 @@
 <body>
   <header class="header">
     <div class="header-top">
-      <a href="#" class="logo" title="趣网站"><div class="logo-icon">🪄</div><div><div class="logo-text">趣网站</div><div class="logo-sub">✨ 好玩的工具集合</div></div></a>
-      <div class="search-wrap"><span class="search-icon">🔍</span><input type="text" id="searchInput" placeholder="搜索工具..." aria-label="搜索工具"></div>
+      <a href="#" class="logo" title="趣网站">
+        <div class="logo-icon">🪄</div>
+        <div><div class="logo-text">趣网站</div><div class="logo-sub">✨ 好玩的工具集合</div></div>
+      </a>
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="searchInput" placeholder="搜索工具..." aria-label="搜索工具">
+      </div>
       <button class="theme-toggle" id="themeToggle" title="切换亮色/暗色模式">🌙</button>
     </div>
-    <div class="header-hint">📢 加入<a href="https://pd.qq.com/s/g22heg9e2?b=9" target="_blank" rel="noopener">趣网吧</a>分享有趣网站，你分享的网站有机会出现在这里哦</div>
+    <div class="header-hint">
+      📢 加入<a href="https://pd.qq.com/s/g22heg9e2?b=9" target="_blank" rel="noopener">趣网吧</a>分享有趣网站，你分享的网站有机会出现在这里哦
+    </div>
     <div class="category-bar-wrap">
       <div class="category-scroll" id="categoryScroll"></div>
       <div class="fade-mask" id="fadeMask"></div>
-      <button class="category-expand-btn" id="categoryExpandBtn" title="展开分类排序"><span class="arrow-v"></span></button>
+      <button class="category-expand-btn" id="categoryExpandBtn" title="展开分类排序">
+        <span class="arrow-v"></span>
+      </button>
     </div>
   </header>
 
@@ -380,14 +513,18 @@
     <div class="info-bar" id="infoBar"></div>
     <div class="cards-grid" id="cardsGrid"></div>
     <div class="empty-state" id="emptyState" style="display:none;">
-      <div class="empty-icon">🧙</div><p>还没有添加任何魔法工具</p><p style="font-size:0.85rem;">请编辑 toolsData.js 添加链接 ✨</p>
+      <div class="empty-icon">🧙</div><p>还没有添加任何魔法工具</p>
+      <p style="font-size:0.85rem;">请编辑 toolsData.js 添加链接 ✨</p>
     </div>
   </div>
 
   <div class="modal-overlay" id="modalOverlay">
     <div class="modal-content">
       <div class="modal-header"><span id="modalTitle">工具加载中...</span><button class="modal-close" id="modalClose">← 返回主页</button></div>
-      <div class="modal-iframe-wrap"><div class="modal-loading" id="modalLoading">⏳ 加载中...</div><iframe id="modalIframe" src="" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-downloads"></iframe></div>
+      <div class="modal-iframe-wrap">
+        <div class="modal-loading" id="modalLoading">⏳ 加载中...</div>
+        <iframe id="modalIframe" src="" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-downloads"></iframe>
+      </div>
     </div>
   </div>
 
@@ -415,6 +552,8 @@
       let scrollEl, expandBtn, fadeMask;
       let gridEl, emptyEl, infoEl, searchInp, themeBtn, topBtn;
       let mo, mIframe, mTitle, mLoad, mClose;
+      let renderTags, renderCards, renderAll, switchCat, setupDrag;
+      let renderedIds = new Set(); // 已渲染的卡片 ID，用于增量更新
 
       const ORDER_KEY = 'categoryOrder_v1';
       function getSavedOrder() { try { return JSON.parse(localStorage.getItem(ORDER_KEY)) || []; } catch { return []; } }
@@ -437,26 +576,6 @@
         return arr;
       }
 
-      function isFav(tid) { return favs.some(f => f.id === tid); }
-      function getCats() { 
-        const saved = getSavedOrder(); let ordered = []; 
-        if (saved.length) { const map = new Map(dynCats.map(c => [c.id, c])); saved.forEach(id => { if (map.has(id)) ordered.push(map.get(id)); }); dynCats.forEach(c => { if (!saved.includes(c.id)) ordered.push(c); }); } 
-        else { ordered = [...dynCats]; } 
-        const cats = [builtIn[0], builtIn[1], ...ordered]; 
-        if (sharedCat) cats.unshift(sharedCat); 
-        return cats; 
-      }
-
-      function generateCardHTML(tool) {
-        const fav = isFav(tool.id);
-        const cn = getCats().find(c => c.id === tool.category)?.name || tool.category || '工具';
-        return `<div class="card ${tool.accentClass}" data-tool-id="${tool.id}" data-url="${tool.url}" data-title="${tool.title}">
-          <div class="card-icon-row"><div class="card-icon ${tool.iconBgClass}">${tool.icon}</div><div class="card-title">${tool.title}</div><span class="open-btn" data-tool-id="${tool.id}" title="打开工具"></span></div>
-          <div class="card-desc">${tool.description}</div>
-          <div class="card-footer-row"><button class="card-category-badge" data-category="${tool.category}">${cn}</button><div class="card-actions"><button class="action-btn share-btn" data-tool-id="${tool.id}" title="转发"><span class="icon">📤</span><span class="label">转发</span></button><button class="action-btn fav-btn ${fav ? 'favorited' : ''}" data-tool-id="${tool.id}"><span class="icon">${fav ? '❤️' : '🤍'}</span><span class="label">收藏</span></button></div></div>
-        </div>`;
-      }
-
       function initFramework() {
         if (appInit) return; appInit = true;
         builtIn = [{ id: 'all', name: '全部', icon: '📋' }, { id: 'favorites', name: '收藏', icon: '⭐' }];
@@ -464,11 +583,13 @@
         sharedCat = null; sharedUrl = null;
 
         function checkShared() { const p = new URLSearchParams(location.search); const o = p.get('open'); if (o) { sharedUrl = decodeURIComponent(o); sharedCat = { id: 'shared', name: '来自分享', icon: '🔗' }; return true; } return false; }
+        function getCats() { const saved = getSavedOrder(); let ordered = []; if (saved.length) { const map = new Map(dynCats.map(c => [c.id, c])); saved.forEach(id => { if (map.has(id)) ordered.push(map.get(id)); }); dynCats.forEach(c => { if (!saved.includes(c.id)) ordered.push(c); }); } else { ordered = [...dynCats]; } const cats = [builtIn[0], builtIn[1], ...ordered]; if (sharedCat) cats.unshift(sharedCat); return cats; }
 
         curCat = 'all'; searchQ = '';
         favs = JSON.parse(localStorage.getItem('turingMagicFavorites_v2') || '[]');
         function saveFavs() { localStorage.setItem('turingMagicFavorites_v2', JSON.stringify(favs)); }
         function togFav(tid) { const idx = favs.findIndex(f => f.id === tid); if (idx !== -1) favs.splice(idx, 1); else favs.unshift({ id: tid, time: Date.now() }); saveFavs(); }
+        function isFav(tid) { return favs.some(f => f.id === tid); }
 
         scrollEl = document.getElementById('categoryScroll');
         expandBtn = document.getElementById('categoryExpandBtn');
@@ -501,38 +622,80 @@
         (function initTheme() { const s = localStorage.getItem('turingMagicTheme'); applyTheme(s === 'light' ? 'light' : 'dark'); })();
         themeBtn.addEventListener('click', () => { applyTheme(document.body.classList.contains('light-mode') ? 'dark' : 'light'); });
 
-        // 流式追加卡片
-        function appendCards(newTools) {
-          if (!newTools || newTools.length === 0) return;
-          let visible = newTools;
-          if (curCat !== 'all' && curCat !== 'shared') {
-            visible = newTools.filter(t => t.category === curCat);
-          }
-          if (visible.length === 0) {
-            renderTags();
+        function getFilteredTools(allTools) {
+          let f = [...allTools];
+          if (curCat === 'shared' && sharedUrl) f = f.filter(t => t.url === sharedUrl);
+          else if (curCat === 'favorites') { const ids = favs.map(x => x.id); f = f.filter(t => ids.includes(t.id)); f.sort((a, b) => ids.indexOf(a.id) - ids.indexOf(b.id)); }
+          else if (curCat !== 'all') f = f.filter(t => t.category === curCat);
+          if (searchQ.trim()) { const q = searchQ.trim().toLowerCase(); f = f.filter(t => t.title.toLowerCase().includes(q) || t.description.toLowerCase().includes(q)); }
+          return f;
+        }
+
+        // 生成工具卡片的 HTML
+        function createCardHTML(tool) {
+          const fav = isFav(tool.id);
+          const catName = getCats().find(c => c.id === tool.category)?.name || tool.category || '工具';
+          return `<div class="card ${tool.accentClass}" data-tool-id="${tool.id}" data-url="${tool.url}" data-title="${tool.title}"><div class="card-icon-row"><div class="card-icon ${tool.iconBgClass}">${tool.icon}</div><div class="card-title">${tool.title}</div><span class="open-btn" data-tool-id="${tool.id}" title="打开工具"></span></div><div class="card-desc">${tool.description}</div><div class="card-footer-row"><button class="card-category-badge" data-category="${tool.category}">${catName}</button><div class="card-actions"><button class="action-btn share-btn" data-tool-id="${tool.id}" title="转发"><span class="icon">📤</span><span class="label">转发</span></button><button class="action-btn fav-btn ${fav ? 'favorited' : ''}" data-tool-id="${tool.id}"><span class="icon">${fav ? '❤️' : '🤍'}</span><span class="label">收藏</span></button></div></div></div>`;
+        }
+
+        // 增量渲染：只添加新工具卡片，不重置已有内容
+        function incrementalRender() {
+          const filtered = getFilteredTools(toolsData);
+          if (filtered.length === 0) {
+            emptyEl.style.display = 'block';
             return;
           }
           emptyEl.style.display = 'none';
-          const html = visible.map(t => generateCardHTML(t)).join('');
-          gridEl.insertAdjacentHTML('beforeend', html);
+
+          // 找出未渲染的工具
+          const newTools = filtered.filter(t => !renderedIds.has(t.id));
+          if (newTools.length === 0) return;
+
+          // 生成 HTML 片段并插入到网格末尾
+          const fragment = document.createDocumentFragment();
+          newTools.forEach(tool => {
+            const temp = document.createElement('div');
+            temp.innerHTML = createCardHTML(tool);
+            fragment.appendChild(temp.firstChild);
+          });
+          gridEl.appendChild(fragment);
+
+          // 标记为已渲染
+          newTools.forEach(t => renderedIds.add(t.id));
+
+          // 如果是收藏分类，重新设置拖拽
           if (curCat === 'favorites') setupDrag();
+          // 更新分类标签的计数
           renderTags();
         }
 
-        function fullRender(filtered) {
+        // 整体渲染（切换分类或初始加载时调用）
+        function fullRender() {
+          renderedIds.clear();
+          const filtered = getFilteredTools(toolsData);
           if (filtered.length === 0) {
             gridEl.innerHTML = '';
             emptyEl.style.display = 'block';
           } else {
             emptyEl.style.display = 'none';
-            gridEl.innerHTML = filtered.map(t => generateCardHTML(t)).join('');
+            // 非收藏/非分享：随机排序
+            if (curCat !== 'favorites' && curCat !== 'shared') {
+              shuffleArray(filtered);
+            }
+            gridEl.innerHTML = filtered.map(tool => createCardHTML(tool)).join('');
+            filtered.forEach(t => renderedIds.add(t.id));
             if (curCat === 'favorites') setupDrag();
           }
+          renderTags();
         }
 
-        function renderAll() { renderTags(); renderCards(); }
+        switchCat = function(cid) {
+          curCat = cid;
+          searchInp.value = ''; searchQ = '';
+          fullRender();
+        };
 
-        function renderTags() {
+        renderTags = function() {
           const cats = getCats();
           const isExpanded = scrollEl.classList.contains('expanded');
           scrollEl.innerHTML = cats.map(c => {
@@ -542,7 +705,9 @@
             return `<button class="category-tag${curCat === c.id ? ' active' : ''}" data-category="${c.id}" ${(!isBuiltIn && isExpanded) ? 'draggable="true"' : ''}>${handle}${c.name}<span class="count">${n}</span></button>`;
           }).join('');
           if (isExpanded) {
-            const hint = document.createElement('div'); hint.className = 'sort-hint'; hint.textContent = '↕️ 拖拽调整分类顺序';
+            const hint = document.createElement('div');
+            hint.className = 'sort-hint';
+            hint.textContent = '↕️ 拖拽调整分类顺序';
             scrollEl.appendChild(hint);
           }
           scrollEl.querySelectorAll('.category-tag').forEach(btn => {
@@ -556,50 +721,67 @@
             }
           });
           updateFadeMask();
-        }
+        };
 
-        function renderCards() {
-          let filtered = [...toolsData];
-          if (curCat === 'shared' && sharedUrl) filtered = filtered.filter(t => t.url === sharedUrl);
-          else if (curCat === 'favorites') { const ids = favs.map(x => x.id); filtered = filtered.filter(t => ids.includes(t.id)); filtered.sort((a, b) => ids.indexOf(a.id) - ids.indexOf(b.id)); }
-          else if (curCat !== 'all') filtered = filtered.filter(t => t.category === curCat);
-          if (searchQ.trim()) { const q = searchQ.trim().toLowerCase(); filtered = filtered.filter(t => t.title.toLowerCase().includes(q) || t.description.toLowerCase().includes(q)); }
-          if (curCat !== 'favorites' && curCat !== 'shared') filtered = shuffleArray([...filtered]);
-          fullRender(filtered);
-        }
-
-        function switchCat(cid) { curCat = cid; searchInp.value = ''; searchQ = ''; renderAll(); }
-
+        // 分类拖拽
         let catDragSrc = null;
-        function handleCatDragStart(e) { catDragSrc = this; this.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', this.dataset.category); }
-        function handleCatDragOver(e) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; if (this !== catDragSrc && !['all', 'favorites', 'shared'].includes(this.dataset.category)) this.classList.add('drag-over'); }
+        function handleCatDragStart(e) {
+          catDragSrc = this;
+          this.classList.add('dragging');
+          e.dataTransfer.effectAllowed = 'move';
+          e.dataTransfer.setData('text/plain', this.dataset.category);
+        }
+        function handleCatDragOver(e) {
+          e.preventDefault();
+          e.dataTransfer.dropEffect = 'move';
+          if (this !== catDragSrc && !['all', 'favorites', 'shared'].includes(this.dataset.category)) {
+            this.classList.add('drag-over');
+          }
+        }
         function handleCatDragLeave(e) { this.classList.remove('drag-over'); }
         function handleCatDrop(e) {
-          e.preventDefault(); this.classList.remove('drag-over');
+          e.preventDefault();
+          this.classList.remove('drag-over');
           if (this === catDragSrc || ['all', 'favorites', 'shared'].includes(this.dataset.category)) return;
           const buttons = Array.from(scrollEl.querySelectorAll('.category-tag[draggable]'));
-          const si = buttons.indexOf(catDragSrc), di = buttons.indexOf(this);
-          if (si < di) scrollEl.insertBefore(catDragSrc, this.nextSibling); else scrollEl.insertBefore(catDragSrc, this);
-          const order = []; scrollEl.querySelectorAll('.category-tag[data-category]').forEach(b => { const cid = b.dataset.category; if (!['all', 'favorites', 'shared'].includes(cid)) order.push(cid); });
-          saveOrder(order); renderTags();
+          const srcIdx = buttons.indexOf(catDragSrc);
+          const destIdx = buttons.indexOf(this);
+          if (srcIdx < destIdx) {
+            scrollEl.insertBefore(catDragSrc, this.nextSibling);
+          } else {
+            scrollEl.insertBefore(catDragSrc, this);
+          }
+          const order = [];
+          scrollEl.querySelectorAll('.category-tag[data-category]').forEach(btn => {
+            const cid = btn.dataset.category;
+            if (!['all', 'favorites', 'shared'].includes(cid)) order.push(cid);
+          });
+          saveOrder(order);
+          renderTags();
         }
-        function handleCatDragEnd(e) { this.classList.remove('dragging'); scrollEl.querySelectorAll('.category-tag').forEach(c => c.classList.remove('drag-over')); catDragSrc = null; }
+        function handleCatDragEnd(e) {
+          this.classList.remove('dragging');
+          scrollEl.querySelectorAll('.category-tag').forEach(c => c.classList.remove('drag-over'));
+          catDragSrc = null;
+        }
 
+        // 卡片拖拽（收藏）
         let dragCard = null;
-        function setupDrag() {
+        setupDrag = function() {
           gridEl.querySelectorAll('.card').forEach(card => {
             card.setAttribute('draggable', 'true');
             card.addEventListener('dragstart', (e) => { dragCard = card; card.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', card.dataset.toolId); });
             card.addEventListener('dragover', (e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; if (card !== dragCard) card.classList.add('drag-over'); });
             card.addEventListener('dragleave', () => { card.classList.remove('drag-over'); });
-            card.addEventListener('drop', (e) => { e.preventDefault(); card.classList.remove('drag-over'); if (card === dragCard) return; const cards = Array.from(gridEl.querySelectorAll('.card')); const si = cards.indexOf(dragCard), di = cards.indexOf(card); if (si < di) gridEl.insertBefore(dragCard, card.nextSibling); else gridEl.insertBefore(dragCard, card); const sid = dragCard.dataset.toolId, did = card.dataset.toolId; const sf = favs.find(f => f.id === sid), df = favs.find(f => f.id === did); if (sf && df) { const sIdx = favs.indexOf(sf), dIdx = favs.indexOf(df); favs.splice(sIdx, 1); favs.splice(dIdx, 0, sf); saveFavs(); } });
+            card.addEventListener('drop', (e) => { e.preventDefault(); card.classList.remove('drag-over'); if (card === dragCard) return; const cards = Array.from(gridEl.querySelectorAll('.card')); const si = cards.indexOf(dragCard); const di = cards.indexOf(card); if (si < di) gridEl.insertBefore(dragCard, card.nextSibling); else gridEl.insertBefore(dragCard, card); const sid = dragCard.dataset.toolId; const did = card.dataset.toolId; const sf = favs.find(f => f.id === sid); const df = favs.find(f => f.id === did); if (sf && df) { const sIdx = favs.indexOf(sf); const dIdx = favs.indexOf(df); favs.splice(sIdx, 1); favs.splice(dIdx, 0, sf); saveFavs(); } });
             card.addEventListener('dragend', () => { card.classList.remove('dragging'); gridEl.querySelectorAll('.card').forEach(c => c.classList.remove('drag-over')); dragCard = null; });
           });
-        }
+        };
 
+        // 收藏/转发/打开的事件委托
         gridEl.addEventListener('click', (e) => {
           const badge = e.target.closest('.card-category-badge'); if (badge) { e.preventDefault(); e.stopPropagation(); if (badge.dataset.category) switchCat(badge.dataset.category); return; }
-          const fb = e.target.closest('.fav-btn'); if (fb) { e.preventDefault(); e.stopPropagation(); togFav(fb.dataset.toolId); renderAll(); return; }
+          const fb = e.target.closest('.fav-btn'); if (fb) { e.preventDefault(); e.stopPropagation(); togFav(fb.dataset.toolId); fullRender(); return; }
           const sb = e.target.closest('.share-btn'); if (sb) { e.preventDefault(); e.stopPropagation(); const card = sb.closest('.card'); if (card) shareTool(card.dataset.url, card.dataset.title); return; }
           const ob = e.target.closest('.open-btn'); if (ob) { e.preventDefault(); e.stopPropagation(); const card = ob.closest('.card'); if (card) { const u = card.dataset.url; if (u) { if (u.startsWith('http')) openTool(u, card.dataset.title); else openTool(location.origin + '/' + u, card.dataset.title); } } return; }
         });
@@ -607,26 +789,22 @@
         function shareTool(url, title) { const base = location.origin + location.pathname; const su = base + '?open=' + encodeURIComponent(url); if (navigator.share) { navigator.share({ title, text: `试试这个工具：${title}`, url: su }).catch(() => {}); } else { if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(su).then(() => alert('链接已复制，可粘贴分享。')); } else { prompt('复制下面的链接分享给朋友：', su); } } }
 
         if (checkShared()) curCat = 'shared';
-        searchInp.addEventListener('input', () => { searchQ = searchInp.value; renderCards(); });
+        searchInp.addEventListener('input', () => { searchQ = searchInp.value; fullRender(); });
         if (typeof siteFooterText !== 'undefined') document.getElementById('versionNote').textContent = siteFooterText;
-        // 初始显示加载中，而非空状态
-        gridEl.innerHTML = '<div class="empty-state"><div class="empty-icon">⏳</div><p>正在加载工具…</p></div>';
-        emptyEl.style.display = 'none';
-        renderTags();
+
+        // 初始全量渲染
+        fullRender();
       }
 
-      function addCategoryTools(newTools) {
-        if (!newTools || newTools.length === 0) return;
-        toolsData = toolsData.concat(newTools);
-        if (appInit) {
-          if (curCat === 'favorites' || curCat === 'shared') {
-            renderAll();
-          } else {
-            appendCards(newTools);
-          }
+      // 当有新的分类工具数据加载完成时，增量追加
+      function addTools(arr) {
+        if (arr && Array.isArray(arr)) {
+          toolsData = toolsData.concat(arr);
+          if (appInit) incrementalRender(); // 只追加新卡片，不重置
         }
       }
 
+      // 并行加载，每完成一个就增量更新
       (async function() {
         initFramework();
         const loadPromises = categoryConfigs.map(cfg => {
@@ -634,9 +812,11 @@
             .then(() => {
               const varName = cfg.folder + 'Tools';
               const categoryTools = window[varName];
-              if (categoryTools) addCategoryTools(categoryTools);
+              if (categoryTools) addTools(categoryTools);
             })
-            .catch(error => { console.error(`加载分类 ${cfg.folder} 失败:`, error); });
+            .catch(error => {
+              console.error(`加载分类 ${cfg.folder} 失败:`, error);
+            });
         });
         await Promise.all(loadPromises);
       })();
