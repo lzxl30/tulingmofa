@@ -164,7 +164,7 @@
       margin: 0 auto;
       padding: 0 8px 4px 16px;
       display: flex;
-      align-items: flex-start;
+      align-items: center;        /* 使箭头与标签垂直居中 */
     }
     .category-scroll {
       flex: 1;
@@ -178,6 +178,7 @@
       scrollbar-width: none;
       -ms-overflow-style: none;
       -webkit-overflow-scrolling: touch;
+      position: relative;
     }
     .category-scroll::-webkit-scrollbar { display: none; }
     .category-scroll.expanded {
@@ -205,13 +206,13 @@
       transition: color 0.2s;
       -webkit-tap-highlight-color: transparent;
       flex-shrink: 0;
+      position: relative;
     }
     .category-tag:active { opacity: 0.7; }
     .category-tag:hover { color: var(--text); }
     .category-tag.active {
       color: var(--primary-light);
       font-weight: 700;
-      position: relative;
     }
     .category-tag.active::after {
       content: '';
@@ -245,6 +246,24 @@
     }
     .category-scroll.expanded .sort-hint { display: block; }
 
+    /* 渐隐遮罩 */
+    .fade-mask {
+      pointer-events: none;
+      position: absolute;
+      right: 36px;            /* 箭头宽度+间距 */
+      top: 0;
+      bottom: 0;
+      width: 40px;
+      background: linear-gradient(to right, transparent, var(--bg));
+      z-index: 5;
+      transition: opacity 0.3s;
+    }
+    body.light-mode .fade-mask {
+      background: linear-gradient(to right, transparent, var(--bg));
+    }
+    .category-scroll.expanded ~ .fade-mask,
+    .fade-mask.hidden { opacity: 0; pointer-events: none; }
+
     /* 展开按钮 */
     .category-expand-btn {
       flex-shrink: 0;
@@ -255,8 +274,7 @@
       cursor: pointer; transition: 0.2s;
       -webkit-tap-highlight-color: transparent;
       border-radius: 6px;
-      margin-left: 2px;
-      margin-top: 2px;
+      z-index: 6;            /* 在渐变之上 */
     }
     .category-expand-btn:hover { color: var(--text); background: rgba(255,255,255,0.05); }
     .category-expand-btn:active { opacity: 0.7; }
@@ -456,6 +474,7 @@
       .open-btn { width: 12px; height: 12px; border-width: 2.5px; margin-right: 4px; }
       .modal-header { padding: 12px 16px; }
       .modal-close { padding: 8px 16px; font-size: 0.85rem; }
+      .fade-mask { right: 30px; width: 30px; }
     }
     @media (min-width: 601px) and (max-width: 1024px) {
       .cards-grid { grid-template-columns: repeat(2, 1fr); }
@@ -485,6 +504,7 @@
     </div>
     <div class="category-bar-wrap">
       <div class="category-scroll" id="categoryScroll"></div>
+      <div class="fade-mask" id="fadeMask"></div>
       <button class="category-expand-btn" id="categoryExpandBtn" title="展开分类排序">
         <span class="arrow-v"></span>
       </button>
@@ -531,7 +551,7 @@
       let appInit = false;
       let builtIn, dynCats, sharedCat, sharedUrl, curCat, searchQ;
       let favs, shuffled;
-      let scrollEl, expandBtn;
+      let scrollEl, expandBtn, fadeMask;
       let gridEl, emptyEl, infoEl, searchInp, themeBtn, topBtn;
       let mo, mIframe, mTitle, mLoad, mClose;
       let renderTags, renderCards, renderAll, switchCat, setupDrag;
@@ -539,6 +559,16 @@
       const ORDER_KEY = 'categoryOrder_v1';
       function getSavedOrder() { try { return JSON.parse(localStorage.getItem(ORDER_KEY)) || []; } catch { return []; } }
       function saveOrder(order) { localStorage.setItem(ORDER_KEY, JSON.stringify(order)); }
+
+      function updateFadeMask() {
+        if (!scrollEl || !fadeMask) return;
+        // 如果展开或者内容未溢出，隐藏遮罩
+        if (scrollEl.classList.contains('expanded') || scrollEl.scrollWidth <= scrollEl.clientWidth + 2) {
+          fadeMask.classList.add('hidden');
+        } else {
+          fadeMask.classList.remove('hidden');
+        }
+      }
 
       function initFramework() {
         if (appInit) return; appInit = true;
@@ -559,6 +589,7 @@
 
         scrollEl = document.getElementById('categoryScroll');
         expandBtn = document.getElementById('categoryExpandBtn');
+        fadeMask = document.getElementById('fadeMask');
         gridEl = document.getElementById('cardsGrid');
         emptyEl = document.getElementById('emptyState');
         infoEl = document.getElementById('infoBar');
@@ -567,12 +598,15 @@
         topBtn = document.getElementById('backToTopBtn');
         mo = document.getElementById('modalOverlay'); mIframe = document.getElementById('modalIframe'); mTitle = document.getElementById('modalTitle'); mLoad = document.getElementById('modalLoading'); mClose = document.getElementById('modalClose');
 
-        // 展开/收起
+        // 监听滚动和展开更新遮罩
+        scrollEl.addEventListener('scroll', updateFadeMask);
+        window.addEventListener('resize', updateFadeMask);
+
         expandBtn.addEventListener('click', () => {
           scrollEl.classList.toggle('expanded');
           expandBtn.classList.toggle('open');
-          // 重新渲染以包含排序提示
-          renderTags();
+          updateFadeMask();
+          renderTags(); // 重新渲染以更新拖拽和提示
         });
 
         function openTool(url, title) { mTitle.textContent = title; mLoad.style.display = 'block'; mIframe.src = url; mo.classList.add('active'); document.body.style.overflow = 'hidden'; mIframe.onload = () => { mLoad.style.display = 'none'; }; }
@@ -606,14 +640,12 @@
             const handle = isBuiltIn ? '' : '<span class="drag-handle">⋮⋮</span>';
             return `<button class="category-tag${curCat === c.id ? ' active' : ''}" data-category="${c.id}" ${(!isBuiltIn && isExpanded) ? 'draggable="true"' : ''}>${handle}${c.name}<span class="count">${n}</span></button>`;
           }).join('');
-          // 展开状态下添加排序提示
           if (isExpanded) {
             const hint = document.createElement('div');
             hint.className = 'sort-hint';
             hint.textContent = '↕️ 拖拽调整分类顺序';
             scrollEl.appendChild(hint);
           }
-          // 绑定事件
           scrollEl.querySelectorAll('.category-tag').forEach(btn => {
             btn.addEventListener('click', () => switchCat(btn.dataset.category));
             if (btn.draggable) {
@@ -624,9 +656,10 @@
               btn.addEventListener('dragend', handleCatDragEnd);
             }
           });
+          // 更新渐隐遮罩
+          updateFadeMask();
         };
 
-        // 分类拖拽排序
         let catDragSrc = null;
         function handleCatDragStart(e) {
           catDragSrc = this;
@@ -654,14 +687,12 @@
           } else {
             scrollEl.insertBefore(catDragSrc, this);
           }
-          // 保存新顺序
           const order = [];
           scrollEl.querySelectorAll('.category-tag[data-category]').forEach(btn => {
             const cid = btn.dataset.category;
             if (!['all', 'favorites', 'shared'].includes(cid)) order.push(cid);
           });
           saveOrder(order);
-          // 刷新标签（不关闭展开状态）
           renderTags();
         }
         function handleCatDragEnd(e) {
