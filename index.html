@@ -157,26 +157,37 @@
     }
     .header-hint a:hover { color: var(--accent-1); }
 
-    /* ========== 分类标签栏（QQ频道风格） ========== */
+    /* ========== 分类标签栏（可展开网格） ========== */
     .category-bar-wrap {
       position: relative;
       max-width: 1350px;
       margin: 0 auto;
-      padding: 0 8px 8px 16px;
+      padding: 0 8px 4px 16px;
       display: flex;
-      align-items: center;
+      align-items: flex-start;
     }
     .category-scroll {
       flex: 1;
-      overflow-x: auto;
-      white-space: nowrap;
       display: flex;
+      flex-wrap: nowrap;
       gap: 6px;
+      max-height: 38px;
+      overflow-x: auto;
+      overflow-y: hidden;
+      transition: max-height 0.35s ease, flex-wrap 0s 0.35s;
       scrollbar-width: none;
       -ms-overflow-style: none;
       -webkit-overflow-scrolling: touch;
     }
     .category-scroll::-webkit-scrollbar { display: none; }
+    .category-scroll.expanded {
+      flex-wrap: wrap;
+      max-height: 260px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      transition: max-height 0.35s ease, flex-wrap 0s;
+      padding-bottom: 4px;
+    }
     .category-tag {
       display: inline-flex;
       align-items: center;
@@ -220,8 +231,21 @@
       margin-left: 1px;
     }
     .category-tag.active .count { color: var(--primary-light); }
+    .category-tag.dragging { opacity: 0.4; }
+    .category-tag.drag-over { background: rgba(139,124,247,0.15); border-radius: 6px; }
+    .drag-handle {
+      cursor: grab; color: var(--text-secondary); font-size: 0.8rem;
+      margin-right: 2px; opacity: 0.5;
+    }
+    .category-tag:hover .drag-handle { opacity: 1; }
+    .sort-hint {
+      font-size: 0.68rem; color: var(--text-secondary);
+      text-align: center; padding: 6px 0 2px; opacity: 0.7;
+      display: none;
+    }
+    .category-scroll.expanded .sort-hint { display: block; }
 
-    /* 展开按钮：大开口V形 */
+    /* 展开按钮 */
     .category-expand-btn {
       flex-shrink: 0;
       width: 34px; height: 34px;
@@ -232,10 +256,10 @@
       -webkit-tap-highlight-color: transparent;
       border-radius: 6px;
       margin-left: 2px;
+      margin-top: 2px;
     }
     .category-expand-btn:hover { color: var(--text); background: rgba(255,255,255,0.05); }
     .category-expand-btn:active { opacity: 0.7; }
-    /* V形箭头 */
     .arrow-v {
       display: inline-block;
       width: 10px; height: 10px;
@@ -246,50 +270,6 @@
     }
     .category-expand-btn.open .arrow-v {
       transform: rotate(-135deg);
-    }
-
-    /* 下拉面板 */
-    .category-dropdown {
-      position: absolute;
-      top: 100%;
-      left: 12px;
-      right: 12px;
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
-      z-index: 110;
-      padding: 8px 0;
-      max-height: 0;
-      overflow: hidden;
-      transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1), padding 0.35s;
-    }
-    .category-dropdown.show {
-      max-height: 500px;
-      padding: 8px 0;
-    }
-    .category-dropdown-item {
-      display: flex; align-items: center; gap: 6px;
-      padding: 8px 16px; font-size: 0.85rem;
-      color: var(--text-secondary); cursor: pointer;
-      transition: background 0.2s; white-space: nowrap;
-      user-select: none;
-    }
-    .category-dropdown-item:hover { background: rgba(139,124,247,0.1); color: var(--text); }
-    .category-dropdown-item.active { color: var(--primary-light); font-weight: 700; }
-    .category-dropdown-item .count { font-size: 0.7rem; margin-left: auto; }
-    /* 拖拽状态 */
-    .category-dropdown-item.dragging { opacity: 0.4; }
-    .category-dropdown-item.drag-over { background: rgba(139,124,247,0.2); }
-    /* 拖拽手柄 */
-    .drag-handle {
-      cursor: grab; color: var(--text-secondary); font-size: 0.8rem;
-      margin-right: 2px; opacity: 0.5;
-    }
-    .category-dropdown-item:hover .drag-handle { opacity: 1; }
-    .dropdown-hint {
-      font-size: 0.68rem; color: var(--text-secondary);
-      text-align: center; padding: 4px 0 0 0; opacity: 0.7;
     }
 
     /* ========== 主内容区 ========== */
@@ -503,12 +483,11 @@
     <div class="header-hint">
       📢 加入<a href="https://pd.qq.com/s/g22heg9e2?b=9" target="_blank" rel="noopener">趣网吧</a>分享有趣网站，你分享的网站有机会出现在这里哦
     </div>
-    <div class="category-bar-wrap" id="categoryBarWrap">
+    <div class="category-bar-wrap">
       <div class="category-scroll" id="categoryScroll"></div>
       <button class="category-expand-btn" id="categoryExpandBtn" title="展开分类排序">
         <span class="arrow-v"></span>
       </button>
-      <div class="category-dropdown" id="categoryDropdown"></div>
     </div>
   </header>
 
@@ -552,20 +531,14 @@
       let appInit = false;
       let builtIn, dynCats, sharedCat, sharedUrl, curCat, searchQ;
       let favs, shuffled;
-      let scrollEl, dropEl, expandBtn;
+      let scrollEl, expandBtn;
       let gridEl, emptyEl, infoEl, searchInp, themeBtn, topBtn;
       let mo, mIframe, mTitle, mLoad, mClose;
       let renderTags, renderCards, renderAll, switchCat, setupDrag;
 
-      // 分类排序存储
       const ORDER_KEY = 'categoryOrder_v1';
       function getSavedOrder() { try { return JSON.parse(localStorage.getItem(ORDER_KEY)) || []; } catch { return []; } }
       function saveOrder(order) { localStorage.setItem(ORDER_KEY, JSON.stringify(order)); }
-
-      function closeDrop() { if (dropEl) { dropEl.classList.remove('show'); expandBtn.classList.remove('open'); } }
-      document.addEventListener('click', (e) => {
-        if (expandBtn && dropEl && !expandBtn.contains(e.target) && !dropEl.contains(e.target)) closeDrop();
-      });
 
       function initFramework() {
         if (appInit) return; appInit = true;
@@ -585,7 +558,6 @@
         function isFav(tid) { return favs.some(f => f.id === tid); }
 
         scrollEl = document.getElementById('categoryScroll');
-        dropEl = document.getElementById('categoryDropdown');
         expandBtn = document.getElementById('categoryExpandBtn');
         gridEl = document.getElementById('cardsGrid');
         emptyEl = document.getElementById('emptyState');
@@ -595,7 +567,13 @@
         topBtn = document.getElementById('backToTopBtn');
         mo = document.getElementById('modalOverlay'); mIframe = document.getElementById('modalIframe'); mTitle = document.getElementById('modalTitle'); mLoad = document.getElementById('modalLoading'); mClose = document.getElementById('modalClose');
 
-        expandBtn.addEventListener('click', (e) => { e.stopPropagation(); const isOpen = dropEl.classList.contains('show'); if (isOpen) closeDrop(); else { dropEl.classList.add('show'); expandBtn.classList.add('open'); renderDropdown(); } });
+        // 展开/收起
+        expandBtn.addEventListener('click', () => {
+          scrollEl.classList.toggle('expanded');
+          expandBtn.classList.toggle('open');
+          // 重新渲染以包含排序提示
+          renderTags();
+        });
 
         function openTool(url, title) { mTitle.textContent = title; mLoad.style.display = 'block'; mIframe.src = url; mo.classList.add('active'); document.body.style.overflow = 'hidden'; mIframe.onload = () => { mLoad.style.display = 'none'; }; }
         function closeModal() { mo.classList.remove('active'); mIframe.src = ''; mLoad.style.display = 'block'; document.body.style.overflow = ''; }
@@ -617,61 +595,80 @@
           return f;
         }
 
-        switchCat = function(cid) { if (cid !== 'favorites' && cid !== 'shared') delete shuffled[cid]; curCat = cid; searchInp.value = ''; searchQ = ''; closeDrop(); renderAll(); };
+        switchCat = function(cid) { if (cid !== 'favorites' && cid !== 'shared') delete shuffled[cid]; curCat = cid; searchInp.value = ''; searchQ = ''; renderAll(); };
 
         renderTags = function() {
           const cats = getCats();
+          const isExpanded = scrollEl.classList.contains('expanded');
           scrollEl.innerHTML = cats.map(c => {
             let n; if (c.id === 'favorites') n = favs.length; else if (c.id === 'shared') n = sharedUrl ? toolsData.filter(t => t.url === sharedUrl).length : 0; else if (c.id === 'all') n = toolsData.length; else n = toolsData.filter(t => t.category === c.id).length;
-            return `<button class="category-tag${curCat === c.id ? ' active' : ''}" data-category="${c.id}">${c.name}<span class="count">${n}</span></button>`;
-          }).join('');
-          scrollEl.querySelectorAll('.category-tag').forEach(b => { b.addEventListener('click', () => switchCat(b.dataset.category)); });
-        };
-
-        function renderDropdown() {
-          const cats = getCats();
-          dropEl.innerHTML = cats.map(c => {
-            let n; if (c.id === 'favorites') n = favs.length; else if (c.id === 'shared') n = sharedUrl ? toolsData.filter(t => t.url === sharedUrl).length : 0; else if (c.id === 'all') n = toolsData.length; else n = toolsData.filter(t => t.category === c.id).length;
             const isBuiltIn = c.id === 'all' || c.id === 'favorites' || c.id === 'shared';
-            return `<div class="category-dropdown-item${curCat === c.id ? ' active' : ''}" data-category="${c.id}" ${isBuiltIn ? '' : 'draggable="true"'}>${isBuiltIn ? '' : '<span class="drag-handle">⋮⋮</span>'}<span>${c.name}</span><span class="count">${n}</span></div>`;
+            const handle = isBuiltIn ? '' : '<span class="drag-handle">⋮⋮</span>';
+            return `<button class="category-tag${curCat === c.id ? ' active' : ''}" data-category="${c.id}" ${(!isBuiltIn && isExpanded) ? 'draggable="true"' : ''}>${handle}${c.name}<span class="count">${n}</span></button>`;
           }).join('');
-          // 添加提示
-          const hint = document.createElement('div');
-          hint.className = 'dropdown-hint';
-          hint.textContent = '↕️ 拖拽排序分类（全部和收藏除外）';
-          dropEl.appendChild(hint);
-
-          dropEl.querySelectorAll('.category-dropdown-item').forEach(item => {
-            item.addEventListener('click', () => switchCat(item.dataset.category));
-            if (item.draggable) {
-              item.addEventListener('dragstart', handleCatDragStart);
-              item.addEventListener('dragover', handleCatDragOver);
-              item.addEventListener('dragleave', handleCatDragLeave);
-              item.addEventListener('drop', handleCatDrop);
-              item.addEventListener('dragend', handleCatDragEnd);
+          // 展开状态下添加排序提示
+          if (isExpanded) {
+            const hint = document.createElement('div');
+            hint.className = 'sort-hint';
+            hint.textContent = '↕️ 拖拽调整分类顺序';
+            scrollEl.appendChild(hint);
+          }
+          // 绑定事件
+          scrollEl.querySelectorAll('.category-tag').forEach(btn => {
+            btn.addEventListener('click', () => switchCat(btn.dataset.category));
+            if (btn.draggable) {
+              btn.addEventListener('dragstart', handleCatDragStart);
+              btn.addEventListener('dragover', handleCatDragOver);
+              btn.addEventListener('dragleave', handleCatDragLeave);
+              btn.addEventListener('drop', handleCatDrop);
+              btn.addEventListener('dragend', handleCatDragEnd);
             }
           });
-        }
+        };
 
+        // 分类拖拽排序
         let catDragSrc = null;
-        function handleCatDragStart(e) { catDragSrc = this; this.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', this.dataset.category); }
-        function handleCatDragOver(e) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; if (this !== catDragSrc && !['all', 'favorites', 'shared'].includes(this.dataset.category)) this.classList.add('drag-over'); }
+        function handleCatDragStart(e) {
+          catDragSrc = this;
+          this.classList.add('dragging');
+          e.dataTransfer.effectAllowed = 'move';
+          e.dataTransfer.setData('text/plain', this.dataset.category);
+        }
+        function handleCatDragOver(e) {
+          e.preventDefault();
+          e.dataTransfer.dropEffect = 'move';
+          if (this !== catDragSrc && !['all', 'favorites', 'shared'].includes(this.dataset.category)) {
+            this.classList.add('drag-over');
+          }
+        }
         function handleCatDragLeave(e) { this.classList.remove('drag-over'); }
         function handleCatDrop(e) {
-          e.preventDefault(); this.classList.remove('drag-over');
+          e.preventDefault();
+          this.classList.remove('drag-over');
           if (this === catDragSrc || ['all', 'favorites', 'shared'].includes(this.dataset.category)) return;
-          const items = Array.from(dropEl.querySelectorAll('.category-dropdown-item'));
-          const srcIdx = items.indexOf(catDragSrc); const destIdx = items.indexOf(this);
-          if (srcIdx < destIdx) dropEl.insertBefore(catDragSrc, this.nextSibling);
-          else dropEl.insertBefore(catDragSrc, this);
-          // 更新排序存储
+          const buttons = Array.from(scrollEl.querySelectorAll('.category-tag[draggable]'));
+          const srcIdx = buttons.indexOf(catDragSrc);
+          const destIdx = buttons.indexOf(this);
+          if (srcIdx < destIdx) {
+            scrollEl.insertBefore(catDragSrc, this.nextSibling);
+          } else {
+            scrollEl.insertBefore(catDragSrc, this);
+          }
+          // 保存新顺序
           const order = [];
-          dropEl.querySelectorAll('.category-dropdown-item[data-category]').forEach(el => { const cid = el.dataset.category; if (!['all', 'favorites', 'shared'].includes(cid)) order.push(cid); });
+          scrollEl.querySelectorAll('.category-tag[data-category]').forEach(btn => {
+            const cid = btn.dataset.category;
+            if (!['all', 'favorites', 'shared'].includes(cid)) order.push(cid);
+          });
           saveOrder(order);
-          // 刷新标签栏
+          // 刷新标签（不关闭展开状态）
           renderTags();
         }
-        function handleCatDragEnd(e) { this.classList.remove('dragging'); dropEl.querySelectorAll('.category-dropdown-item').forEach(c => c.classList.remove('drag-over')); catDragSrc = null; }
+        function handleCatDragEnd(e) {
+          this.classList.remove('dragging');
+          scrollEl.querySelectorAll('.category-tag').forEach(c => c.classList.remove('drag-over'));
+          catDragSrc = null;
+        }
 
         let dragCard = null;
         setupDrag = function() {
