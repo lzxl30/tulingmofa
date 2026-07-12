@@ -340,6 +340,12 @@
     body.light-mode .back-to-top-btn:hover { color: #6c5ce7; background: transparent; }
 
     .fixed-bottom-bar .btn-icon { font-size: 1rem; }
+    .footer-note {
+      color: var(--text-secondary);
+      font-size: 0.7rem;
+      text-align: center;
+      margin: 0;
+    }
 
     /* 模态框全屏覆盖，无圆角 */
     .modal-overlay {
@@ -498,12 +504,15 @@
         <span class="btn-icon">📡</span> 米游途
       </a>
     </div>
+    <p class="footer-note" id="versionNote"></p>
   </div>
 
   <!-- 1. 加载统一分类配置文件 -->
   <script src="categories.js"></script>
+  <!-- 2. 加载版本信息文件 -->
+  <script src="version.js"></script>
 
-  <!-- 2. 动态加载各个分类的工具列表，并实时更新 -->
+  <!-- 3. 动态加载各个分类的工具列表，并实时更新 -->
   <script>
     (function() {
       if (typeof categoryConfigs === 'undefined') {
@@ -871,6 +880,11 @@
             btn.classList.toggle('active', btn.dataset.category === currentCategory && !searchQuery.trim());
           });
         });
+
+        // 设置版本信息
+        if (typeof siteFooterText !== 'undefined') {
+          document.getElementById('versionNote').textContent = siteFooterText;
+        }
 
         // 初始渲染空状态
         renderAll();
