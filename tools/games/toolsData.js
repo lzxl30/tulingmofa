@@ -8,5 +8,17 @@ var gamesTools = [
     icon: '😀',
     iconBgClass: 'bg-3',
     accentClass: 'accent-3'
+  },
+  {
+    id: 'games-2',
+    title: '井字棋',
+    url: 'https://playtictactoe.org/',
+    description: '经典井字棋游戏，与朋友或电脑对战，简单有趣。',
+    category: 'games',
+    icon: '⭕',
+    iconBgClass: 'bg-0',
+    accentClass: 'accent-0'
   }
+  // 在这里继续添加更多游戏工具
+];
 ];
