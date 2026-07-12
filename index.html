@@ -657,20 +657,45 @@
         };
 
         let catDragSrc = null;
-        function handleCatDragStart(e) { catDragSrc = this; this.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', this.dataset.category); }
-        function handleCatDragOver(e) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; if (this !== catDragSrc && !['all', 'favorites', 'shared'].includes(this.dataset.category)) this.classList.add('drag-over'); }
+        function handleCatDragStart(e) {
+          catDragSrc = this;
+          this.classList.add('dragging');
+          e.dataTransfer.effectAllowed = 'move';
+          e.dataTransfer.setData('text/plain', this.dataset.category);
+        }
+        function handleCatDragOver(e) {
+          e.preventDefault();
+          e.dataTransfer.dropEffect = 'move';
+          if (this !== catDragSrc && !['all', 'favorites', 'shared'].includes(this.dataset.category)) {
+            this.classList.add('drag-over');
+          }
+        }
         function handleCatDragLeave(e) { this.classList.remove('drag-over'); }
         function handleCatDrop(e) {
-          e.preventDefault(); this.classList.remove('drag-over');
+          e.preventDefault();
+          this.classList.remove('drag-over');
           if (this === catDragSrc || ['all', 'favorites', 'shared'].includes(this.dataset.category)) return;
           const buttons = Array.from(scrollEl.querySelectorAll('.category-tag[draggable]'));
-          const srcIdx = buttons.indexOf(catDragSrc); const destIdx = buttons.indexOf(this);
-          if (srcIdx < destIdx) scrollEl.insertBefore(catDragSrc, this.nextSibling);
-          else scrollEl.insertBefore(catDragSrc, this);
-          const order = []; scrollEl.querySelectorAll('.category-tag[data-category]').forEach(btn => { const cid = btn.dataset.category; if (!['all', 'favorites', 'shared'].includes(cid)) order.push(cid); });
-          saveOrder(order); renderTags();
+          const srcIdx = buttons.indexOf(catDragSrc);
+          const destIdx = buttons.indexOf(this);
+          if (srcIdx < destIdx) {
+            scrollEl.insertBefore(catDragSrc, this.nextSibling);
+          } else {
+            scrollEl.insertBefore(catDragSrc, this);
+          }
+          const order = [];
+          scrollEl.querySelectorAll('.category-tag[data-category]').forEach(btn => {
+            const cid = btn.dataset.category;
+            if (!['all', 'favorites', 'shared'].includes(cid)) order.push(cid);
+          });
+          saveOrder(order);
+          renderTags();
         }
-        function handleCatDragEnd(e) { this.classList.remove('dragging'); scrollEl.querySelectorAll('.category-tag').forEach(c => c.classList.remove('drag-over')); catDragSrc = null; }
+        function handleCatDragEnd(e) {
+          this.classList.remove('dragging');
+          scrollEl.querySelectorAll('.category-tag').forEach(c => c.classList.remove('drag-over'));
+          catDragSrc = null;
+        }
 
         let dragCard = null;
         setupDrag = function() {
@@ -711,22 +736,7 @@
 
       function addTools(arr) { if (arr && Array.isArray(arr)) toolsData = toolsData.concat(arr); if (appInit) renderAll(); }
 
-      // 并行加载所有分类数据
-      (async function() {
-        initFramework();
-        const loadPromises = categoryConfigs.map(cfg => {
-          return loadScript(`tools/${cfg.folder}/toolsData.js`)
-            .then(() => {
-              const varName = cfg.folder + 'Tools';
-              const categoryTools = window[varName];
-              if (categoryTools) addTools(categoryTools);
-            })
-            .catch(error => {
-              console.error(`加载分类 ${cfg.folder} 失败:`, error);
-            });
-        });
-        await Promise.all(loadPromises);
-      })();
+      (async function() { initFramework(); for (const cfg of categoryConfigs) { try { await loadScript(`tools/${cfg.folder}/toolsData.js`); const vn = cfg.folder + 'Tools'; const t = window[vn]; if (t) addTools(t); } catch (e) { console.error(`加载 ${cfg.folder} 失败:`, e); } } })();
     })();
   </script>
 </body>
