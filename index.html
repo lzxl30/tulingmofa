@@ -451,7 +451,6 @@
     body.light-mode .modal-close { background: #6c5ce7; color: #fff; }
     body.light-mode .modal-close:hover { background: #5b4cdb; }
     .modal-iframe-wrap { flex: 1; position: relative; background: #fff; }
-    /* iframe 不再限制沙箱 */
     .modal-iframe-wrap iframe {
       width: 100%; height: 100%; border: none;
     }
@@ -519,8 +518,9 @@
     <div class="info-bar" id="infoBar"></div>
     <div class="cards-grid" id="cardsGrid"></div>
     <div class="empty-state" id="emptyState" style="display:none;">
-      <div class="empty-icon">🧙</div><p>还没有添加任何魔法工具</p>
-      <p style="font-size:0.85rem;">请编辑 toolsData.js 添加链接 ✨</p>
+      <div class="empty-icon">⏳</div>
+      <p>正在加载工具…</p>
+      <p style="font-size:0.85rem;">请稍候，工具卡片即将呈现</p>
     </div>
   </div>
 
@@ -542,6 +542,15 @@
     </div>
     <p class="footer-note" id="versionNote"></p>
   </div>
+
+  <!-- 注册 Service Worker -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker.js').catch(() => {});
+      });
+    }
+  </script>
 
   <script src="categories.js"></script>
   <script src="version.js"></script>
@@ -718,8 +727,13 @@
           const f = getFiltered();
           if (curCat === 'favorites') { infoEl.style.display = 'flex'; infoEl.innerHTML = '<div class="drag-hint">↕️ 可拖拽卡片调整收藏顺序</div>'; }
           else { infoEl.style.display = 'none'; infoEl.innerHTML = ''; }
-          if (f.length === 0) { gridEl.innerHTML = ''; emptyEl.style.display = 'block'; }
-          else { emptyEl.style.display = 'none'; gridEl.innerHTML = f.map(t => { const fav = isFav(t.id); const cn = getCats().find(c => c.id === t.category)?.name || t.category || '工具'; return `<div class="card ${t.accentClass}" data-tool-id="${t.id}" data-url="${t.url}" data-title="${t.title}"><div class="card-icon-row"><div class="card-icon ${t.iconBgClass}">${t.icon}</div><div class="card-title">${t.title}</div><span class="open-btn" data-tool-id="${t.id}" title="打开工具"></span></div><div class="card-desc">${t.description}</div><div class="card-footer-row"><button class="card-category-badge" data-category="${t.category}">${cn}</button><div class="card-actions"><button class="action-btn share-btn" data-tool-id="${t.id}" title="转发"><span class="icon">📤</span><span class="label">转发</span></button><button class="action-btn fav-btn ${fav ? 'favorited' : ''}" data-tool-id="${t.id}"><span class="icon">${fav ? '❤️' : '🤍'}</span><span class="label">收藏</span></button></div></div></div>`; }).join(''); if (curCat === 'favorites') setupDrag(); }
+          if (f.length === 0) {
+            // 如果当前分类真的没有工具，才显示空状态
+            gridEl.innerHTML = '';
+            emptyEl.style.display = 'block';
+          } else {
+            emptyEl.style.display = 'none';
+            gridEl.innerHTML = f.map(t => { const fav = isFav(t.id); const cn = getCats().find(c => c.id === t.category)?.name || t.category || '工具'; return `<div class="card ${t.accentClass}" data-tool-id="${t.id}" data-url="${t.url}" data-title="${t.title}"><div class="card-icon-row"><div class="card-icon ${t.iconBgClass}">${t.icon}</div><div class="card-title">${t.title}</div><span class="open-btn" data-tool-id="${t.id}" title="打开工具"></span></div><div class="card-desc">${t.description}</div><div class="card-footer-row"><button class="card-category-badge" data-category="${t.category}">${cn}</button><div class="card-actions"><button class="action-btn share-btn" data-tool-id="${t.id}" title="转发"><span class="icon">📤</span><span class="label">转发</span></button><button class="action-btn fav-btn ${fav ? 'favorited' : ''}" data-tool-id="${t.id}"><span class="icon">${fav ? '❤️' : '🤍'}</span><span class="label">收藏</span></button></div></div></div>`; }).join(''); if (curCat === 'favorites') setupDrag(); }
         };
 
         renderAll = function() { renderTags(); renderCards(); };
@@ -736,12 +750,43 @@
         if (checkShared()) curCat = 'shared';
         searchInp.addEventListener('input', () => { searchQ = searchInp.value; renderCards(); document.querySelectorAll('.category-tag').forEach(b => { b.classList.toggle('active', b.dataset.category === curCat && !searchQ.trim()); }); });
         if (typeof siteFooterText !== 'undefined') document.getElementById('versionNote').textContent = siteFooterText;
-        renderAll();
+        // 初始状态：显示“正在加载…”
+        emptyEl.style.display = 'block';
+        renderTags();
       }
 
-      function addTools(arr) { if (arr && Array.isArray(arr)) toolsData = toolsData.concat(arr); if (appInit) renderAll(); }
+      function addTools(arr) {
+        if (arr && Array.isArray(arr)) {
+          toolsData = toolsData.concat(arr);
+        }
+        if (appInit) {
+          // 有数据后立即隐藏加载提示
+          if (toolsData.length > 0) {
+            emptyEl.style.display = 'none';
+          }
+          renderAll();
+        }
+      }
 
-      (async function() { initFramework(); for (const cfg of categoryConfigs) { try { await loadScript(`tools/${cfg.folder}/toolsData.js`); const vn = cfg.folder + 'Tools'; const t = window[vn]; if (t) addTools(t); } catch (e) { console.error(`加载 ${cfg.folder} 失败:`, e); } } })();
+      // 并行加载所有分类
+      (async function() {
+        initFramework();
+        const promises = categoryConfigs.map(cfg => {
+          return loadScript(`tools/${cfg.folder}/toolsData.js`).then(() => {
+            const varName = cfg.folder + 'Tools';
+            const categoryTools = window[varName];
+            if (categoryTools) addTools(categoryTools);
+          }).catch((error) => {
+            console.error(`加载分类 ${cfg.folder} 失败:`, error);
+          });
+        });
+        await Promise.allSettled(promises);
+        // 所有分类加载完成后确保空状态不再显示（如果确实有数据）
+        if (toolsData.length > 0) {
+          emptyEl.style.display = 'none';
+          renderCards();
+        }
+      })();
     })();
   </script>
 </body>
