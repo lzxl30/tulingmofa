@@ -539,7 +539,6 @@
   <div class="main-container">
     <div class="info-bar" id="infoBar"></div>
     <div class="cards-grid" id="cardsGrid">
-      <!-- 初始加载动画 -->
       <div class="loading-overlay" id="loadingOverlay">
         <div class="loading-dots">
           <div class="loading-dot"></div>
@@ -590,7 +589,7 @@
       let gridEl, emptyEl, infoEl, searchInp, themeBtn, topBtn, loadingEl;
       let mo, mIframe, mTitle, mLoad, mClose;
       let renderTags, renderCards, renderAll, switchCat, setupDrag;
-      let priorityFolder = null; // 转发链接优先加载的分类文件夹
+      let priorityFolder = null;
 
       const ORDER_KEY = 'categoryOrder_v1';
       function getSavedOrder() { try { return JSON.parse(localStorage.getItem(ORDER_KEY)) || []; } catch { return []; } }
@@ -617,12 +616,9 @@
           if (o) {
             sharedUrl = decodeURIComponent(o);
             sharedCat = { id: 'shared', name: '来自分享', icon: '🔗' };
-            // 尝试提取分类文件夹名，用于优先加载
             if (sharedUrl.startsWith('tools/')) {
               const parts = sharedUrl.split('/');
-              if (parts.length >= 2) {
-                priorityFolder = parts[1]; // 例如 'turing'
-              }
+              if (parts.length >= 2) priorityFolder = parts[1];
             }
             return true;
           }
@@ -769,10 +765,8 @@
         if (checkShared()) curCat = 'shared';
         searchInp.addEventListener('input', () => { searchQ = searchInp.value; renderCards(); document.querySelectorAll('.category-tag').forEach(b => { b.classList.toggle('active', b.dataset.category === curCat && !searchQ.trim()); }); });
         if (typeof siteFooterText !== 'undefined') document.getElementById('versionNote').textContent = siteFooterText;
-        // 注意：此处不再调用 renderAll()，避免闪现占位符
       }
 
-      // 加载动画（可提前结束）
       let animationResolve = null;
       function startLoadingAnimation() {
         if (loadingEl) loadingEl.style.display = 'flex';
@@ -781,10 +775,7 @@
           const minLoadTime = 600;
           const startTime = Date.now();
           const checkDone = () => {
-            if (animationResolve !== resolve) { // 被提前结束
-              resolve();
-              return;
-            }
+            if (animationResolve !== resolve) { resolve(); return; }
             const elapsed = Date.now() - startTime;
             if (elapsed >= minLoadTime) resolve();
             else setTimeout(checkDone, 50);
@@ -793,7 +784,6 @@
         });
       }
 
-      // 加载单个分类的工具数据，并合并到全局 toolsData
       async function loadCategory(cfg) {
         await loadScript(`tools/${cfg.folder}/toolsData.js`);
         const vn = cfg.folder + 'Tools';
@@ -807,30 +797,26 @@
         initFramework();
         const animationPromise = startLoadingAnimation();
 
-        // 如果有优先分类（转发链接对应的分类）
         if (priorityFolder) {
           const priorityCfg = categoryConfigs.find(c => c.folder === priorityFolder);
           if (priorityCfg) {
-            // 优先加载该分类，并立即渲染
-            try {
-              await loadCategory(priorityCfg);
-            } catch (e) { console.error('优先加载失败:', e); }
-            // 立即结束动画并显示
+            try { await loadCategory(priorityCfg); } catch (e) { console.error('优先加载失败:', e); }
             if (animationResolve) { animationResolve(); animationResolve = null; }
             await animationPromise;
             if (appInit) renderAll();
-            // 继续后台加载剩余分类
+
+            // 后台加载剩余分类，只更新标签计数
             const remaining = categoryConfigs.filter(c => c.folder !== priorityFolder);
             remaining.forEach(cfg => {
               loadCategory(cfg).then(() => {
-                if (appInit) renderAll(); // 更新标签计数，但不会改变 shared 分类下的卡片
+                if (appInit) renderTags();   // 只刷新标签，不重绘卡片
               }).catch(e => console.error(`加载 ${cfg.folder} 失败:`, e));
             });
             return;
           }
         }
 
-        // 普通情况：并行加载所有分类
+        // 普通模式：并行加载所有分类
         const loadPromises = categoryConfigs.map(cfg => loadCategory(cfg).catch(e => console.error(`加载 ${cfg.folder} 失败:`, e)));
         await Promise.all(loadPromises);
         if (animationResolve) { animationResolve(); animationResolve = null; }
