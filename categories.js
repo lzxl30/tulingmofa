@@ -11,6 +11,12 @@ var categoryConfigs = [
     id: 'games',
     name: '游戏',
     icon: ''
+  },
+  {
+    folder: 'scenery',
+    id: 'scenery',
+    name: '风景',
+    icon: ''
   }
   // 未来添加新分类，只需在这里追加，例如：
   // {
