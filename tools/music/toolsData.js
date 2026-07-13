@@ -6,8 +6,8 @@ var musicTools = [
     description: '日本开发者 aidn 的互动作品集，点击即可创作旋律，好玩又好听。',
     category: 'music',
     icon: '🎶',
-    iconBgClass: 'bg-music-1',   // 活泼珊瑚粉渐变
-    accentClass: 'accent-music-1'
+    iconBgClass: 'bg-5',      // 粉紫渐变，和🎶音符搭配，活泼年轻
+    accentClass: 'accent-5'
   },
   {
     id: 'music-2',
@@ -16,7 +16,7 @@ var musicTools = [
     description: 'Ableton 官方互动教程，从节拍到歌曲，零基础玩转音乐制作。',
     category: 'music',
     icon: '🎹',
-    iconBgClass: 'bg-music-2',   // 深邃蓝绿渐变
-    accentClass: 'accent-music-2'
+    iconBgClass: 'bg-6',      // 青蓝渐变，和🎹钢琴搭配，清爽专业
+    accentClass: 'accent-6'
   }
 ];
