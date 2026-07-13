@@ -7,6 +7,7 @@ var sceneryTools = [
     category: 'scenery',
     icon: '🏯',
     iconBgClass: 'bg-5',
-    accentClass: 'accent-5'
+    accentClass: 'accent-5',
+    external: true 
   }
 ];
