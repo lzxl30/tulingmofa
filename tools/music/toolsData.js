@@ -13,12 +13,12 @@ var musicTools = [
   {
     id: 'music-2',
     title: 'Ableton 学音乐',
-    url: 'https://learningmusic.ableton.com/',
+    url: 'https://learningmusic.ableton.com/zh-Hans/',
     description: 'Ableton 官方互动教程，从节拍到歌曲，零基础玩转音乐制作。',
     category: 'music',
     icon: '🎹',
     iconBgClass: 'bg-6',
     accentClass: 'accent-6',
-    external: true   // ← 用新窗口打开
+     // ← 用新窗口打开
   }
 ];
