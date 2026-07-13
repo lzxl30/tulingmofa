@@ -8,6 +8,9 @@ if (typeof turingTools !== 'undefined') {
 if (typeof gamesTools !== 'undefined') {
   toolsData = toolsData.concat(gamesTools);
 }
+if (typeof sceneryTools !== 'undefined') {
+  toolsData = toolsData.concat(sceneryTools);
+}
 // 未来可继续追加其他分类
 // 未来添加其他分类，例如：
 // if (typeof imageTools !== 'undefined') {
