@@ -19,6 +19,6 @@ var musicTools = [
     icon: '🎹',
     iconBgClass: 'bg-6',
     accentClass: 'accent-6',
-     // ← 用新窗口打开
+    external: true // ← 用新窗口打开
   }
 ];
