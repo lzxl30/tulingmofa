@@ -157,7 +157,6 @@
     }
     .header-hint a:hover { color: var(--accent-1); }
 
-    /* 分类标签栏 */
     .category-bar-wrap {
       position: relative;
       max-width: 1350px;
@@ -375,48 +374,96 @@
     .empty-state p { font-size: 0.95rem; }
 
     .fixed-bottom-bar {
-      position: fixed; bottom: 0; left: 0; right: 0;
-      background: var(--card-bg); border-top: 1px solid var(--border);
-      padding: 8px 16px 10px; display: flex; flex-direction: column;
-      align-items: center; gap: 4px; z-index: 99;
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background: var(--card-bg);
+      border-top: 1px solid var(--border);
+      padding: 6px 16px 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      z-index: 99;
       box-shadow: 0 -2px 10px rgba(0,0,0,0.3);
-      backdrop-filter: blur(12px); background: rgba(18, 20, 28, 0.9);
+      backdrop-filter: blur(12px);
+      background: rgba(18, 20, 28, 0.9);
     }
     body.light-mode .fixed-bottom-bar { background: rgba(255, 255, 255, 0.9); }
-    .fixed-bottom-bar .channel-row { display: flex; align-items: center; gap: 12px; }
-    .fixed-bottom-bar .channel-btn {
-      display: inline-flex; align-items: center; gap: 4px;
+
+    .bottom-top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      padding: 0 4px;
+    }
+
+    .back-to-top-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: transparent;
+      border: none;
+      color: #f0f2ff;
+      padding: 4px 12px;
+      border-radius: 50px;
+      font-weight: 600;
+      font-size: 0.8rem;
+      text-decoration: none;
+      transition: all 0.25s;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      white-space: nowrap;
+    }
+    .back-to-top-btn:hover { color: #fff; transform: scale(1.02); }
+    body.light-mode .back-to-top-btn { color: #2d2e3a; }
+    body.light-mode .back-to-top-btn:hover { color: #6c5ce7; }
+
+    .channel-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .channel-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
       background: linear-gradient(135deg, #2a2d3d, #1e2130);
-      border: 1px solid #464b60; color: #f0f2ff;
-      padding: 6px 14px; border-radius: 50px;
-      font-weight: 600; font-size: 0.8rem; text-decoration: none;
-      transition: all 0.25s; box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      border: 1px solid #464b60;
+      color: #f0f2ff;
+      padding: 4px 10px;
+      border-radius: 50px;
+      font-weight: 600;
+      font-size: 0.72rem;
+      text-decoration: none;
+      transition: all 0.25s;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
       -webkit-tap-highlight-color: transparent;
     }
-    .fixed-bottom-bar .channel-btn:hover {
+    .channel-btn:hover {
       background: linear-gradient(135deg, #3d3f5c, #2d2f44);
-      border-color: #8b7cf7; transform: translateY(-1px); color: #fff;
+      border-color: #8b7cf7;
+      transform: translateY(-1px);
+      color: #fff;
     }
-    body.light-mode .fixed-bottom-bar .channel-btn {
-      background: #f0f1f6; border-color: #cdd0dd; color: #2d2e3a;
+    body.light-mode .channel-btn {
+      background: #f0f1f6;
+      border-color: #cdd0dd;
+      color: #2d2e3a;
     }
-    body.light-mode .fixed-bottom-bar .channel-btn:hover {
-      background: #e6e8f2; border-color: #6c5ce7;
+    body.light-mode .channel-btn:hover {
+      background: #e6e8f2;
+      border-color: #6c5ce7;
     }
-    .back-to-top-btn {
-      position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
-      display: inline-flex; align-items: center; gap: 4px;
-      background: transparent; border: none; color: #f0f2ff;
-      padding: 6px 14px; border-radius: 50px;
-      font-weight: 600; font-size: 0.8rem; text-decoration: none;
-      transition: all 0.25s; box-shadow: none; cursor: pointer;
-      -webkit-tap-highlight-color: transparent; z-index: 100;
+
+    .fixed-bottom-bar .btn-icon { font-size: 0.95rem; }
+    .footer-note {
+      color: var(--text-secondary);
+      font-size: 0.65rem;
+      text-align: center;
+      margin: 2px 0 0 0;
+      opacity: 0.75;
     }
-    .back-to-top-btn:hover { background: transparent; color: #fff; transform: translateY(-50%) scale(1.02); }
-    body.light-mode .back-to-top-btn { color: #2d2e3a; }
-    body.light-mode .back-to-top-btn:hover { color: #6c5ce7; background: transparent; }
-    .fixed-bottom-bar .btn-icon { font-size: 1rem; }
-    .footer-note { color: var(--text-secondary); font-size: 0.7rem; text-align: center; margin: 0; }
 
     .modal-overlay {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -451,13 +498,8 @@
     body.light-mode .modal-close { background: #6c5ce7; color: #fff; }
     body.light-mode .modal-close:hover { background: #5b4cdb; }
     .modal-iframe-wrap { flex: 1; position: relative; background: #fff; }
-    .modal-iframe-wrap iframe {
-      width: 100%; height: 100%; border: none;
-    }
-    .modal-loading {
-      position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
-      color: #666; font-size: 0.9rem;
-    }
+    .modal-iframe-wrap iframe { width: 100%; height: 100%; border: none; }
+    .modal-loading { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); color: #666; font-size: 0.9rem; }
 
     @media (max-width: 600px) {
       .header-top { padding: 8px 12px 4px; gap: 6px; }
@@ -469,10 +511,10 @@
       .category-tag { font-size: 0.8rem; padding: 5px 8px; }
       .category-bar-wrap { padding: 0 0 6px 12px; }
       .main-container { padding: 12px 12px 20px; }
-      .fixed-bottom-bar { padding: 6px 10px 8px; gap: 4px; }
-      .fixed-bottom-bar .channel-row { gap: 8px; }
-      .fixed-bottom-bar .channel-btn { padding: 5px 10px; font-size: 0.7rem; }
-      .back-to-top-btn { padding: 5px 10px; font-size: 0.7rem; left: 10px; }
+      .fixed-bottom-bar { padding: 4px 12px 6px; gap: 3px; }
+      .bottom-top-row { padding: 0 2px; }
+      .channel-btn { padding: 3px 8px; font-size: 0.68rem; }
+      .back-to-top-btn { padding: 3px 10px; font-size: 0.75rem; }
       .header-hint { font-size: 0.65rem; }
       .open-btn { width: 12px; height: 12px; border-width: 2.5px; margin-right: 4px; }
       .modal-header { padding: 12px 16px; }
@@ -535,10 +577,14 @@
   </div>
 
   <div class="fixed-bottom-bar">
-    <button class="back-to-top-btn" id="backToTopBtn" title="回到顶部"><span class="btn-icon">⬆️</span> 回顶</button>
-    <div class="channel-row">
-      <a href="https://pd.qq.com/s/cnedkunn2?b=9" target="_blank" rel="noopener" class="channel-btn"><span class="btn-icon">🎮</span> 次元ACG</a>
-      <a href="https://pd.qq.com/s/cbffiz2ds?b=9" target="_blank" rel="noopener" class="channel-btn"><span class="btn-icon">📡</span> 米游途</a>
+    <div class="bottom-top-row">
+      <button class="back-to-top-btn" id="backToTopBtn" title="回到顶部并刷新排序">
+        <span class="btn-icon">⬆️</span> 回顶
+      </button>
+      <div class="channel-row">
+        <a href="https://pd.qq.com/s/cnedkunn2?b=9" target="_blank" rel="noopener" class="channel-btn"><span class="btn-icon">🎮</span> 次元ACG</a>
+        <a href="https://pd.qq.com/s/cbffiz2ds?b=9" target="_blank" rel="noopener" class="channel-btn"><span class="btn-icon">📡</span> 米游途</a>
+      </div>
     </div>
     <p class="footer-note" id="versionNote"></p>
   </div>
@@ -638,7 +684,17 @@
         mClose.addEventListener('click', closeModal);
         mo.addEventListener('click', (e) => { if (e.target === mo) closeModal(); });
         document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && mo.classList.contains('active')) closeModal(); });
-        topBtn.addEventListener('click', () => { window.scrollTo({ top: 0, behavior: 'smooth' }); });
+
+        // 回顶按钮：滚动到顶部并刷新排序
+        topBtn.addEventListener('click', () => {
+          // 清除当前分类的随机缓存，以便重新随机
+          if (curCat !== 'favorites' && curCat !== 'shared') {
+            delete shuffled[curCat];
+          }
+          renderAll();
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
         function applyTheme(m) { if (m === 'light') { document.body.classList.add('light-mode'); themeBtn.textContent = '☀️'; } else { document.body.classList.remove('light-mode'); themeBtn.textContent = '🌙'; } localStorage.setItem('turingMagicTheme', m); }
         (function initTheme() { const s = localStorage.getItem('turingMagicTheme'); applyTheme(s === 'light' ? 'light' : 'dark'); })();
         themeBtn.addEventListener('click', () => { applyTheme(document.body.classList.contains('light-mode') ? 'dark' : 'light'); });
@@ -706,7 +762,6 @@
           const f = getFiltered();
           if (curCat === 'favorites') { infoEl.style.display = 'flex'; infoEl.innerHTML = '<div class="drag-hint">↕️ 可拖拽卡片调整收藏顺序</div>'; }
           else { infoEl.style.display = 'none'; infoEl.innerHTML = ''; }
-
           if (f.length === 0) {
             gridEl.innerHTML = '';
             emptyEl.style.display = 'block';
