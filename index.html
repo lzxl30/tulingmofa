@@ -157,6 +157,7 @@
     }
     .header-hint a:hover { color: var(--accent-1); }
 
+    /* 分类标签栏 */
     .category-bar-wrap {
       position: relative;
       max-width: 1350px;
@@ -566,7 +567,7 @@
       let gridEl, emptyEl, emptyText, emptySubText, infoEl, searchInp, themeBtn, topBtn;
       let mo, mIframe, mTitle, mLoad, mClose;
       let renderTags, renderCards, renderAll, switchCat, setupDrag;
-      let dataLoaded = false;  // 标记数据是否全部加载完成
+      let dataLoaded = false;
 
       const ORDER_KEY = 'categoryOrder_v1';
       function getSavedOrder() { try { return JSON.parse(localStorage.getItem(ORDER_KEY)) || []; } catch { return []; } }
@@ -621,7 +622,18 @@
           renderTags();
         });
 
-        function openTool(url, title) { mTitle.textContent = title; mLoad.style.display = 'block'; mIframe.src = url; mo.classList.add('active'); document.body.style.overflow = 'hidden'; mIframe.onload = () => { mLoad.style.display = 'none'; }; }
+        function openTool(url, title, isExternal) {
+          if (isExternal) {
+            window.open(url, '_blank');
+            return;
+          }
+          mTitle.textContent = title;
+          mLoad.style.display = 'block';
+          mIframe.src = url;
+          mo.classList.add('active');
+          document.body.style.overflow = 'hidden';
+          mIframe.onload = () => { mLoad.style.display = 'none'; };
+        }
         function closeModal() { mo.classList.remove('active'); mIframe.src = ''; mLoad.style.display = 'block'; document.body.style.overflow = ''; }
         mClose.addEventListener('click', closeModal);
         mo.addEventListener('click', (e) => { if (e.target === mo) closeModal(); });
@@ -698,7 +710,6 @@
           if (f.length === 0) {
             gridEl.innerHTML = '';
             emptyEl.style.display = 'block';
-            // 根据当前分类和加载状态显示不同提示
             if (!dataLoaded) {
               emptyText.textContent = '正在加载网站…';
               emptySubText.textContent = '请稍候，网站卡片即将呈现';
@@ -714,7 +725,7 @@
             }
           } else {
             emptyEl.style.display = 'none';
-            gridEl.innerHTML = f.map(t => { const fav = isFav(t.id); const cn = getCats().find(c => c.id === t.category)?.name || t.category || '网站'; return `<div class="card ${t.accentClass}" data-tool-id="${t.id}" data-url="${t.url}" data-title="${t.title}"><div class="card-icon-row"><div class="card-icon ${t.iconBgClass}">${t.icon}</div><div class="card-title">${t.title}</div><span class="open-btn" data-tool-id="${t.id}" title="打开网站"></span></div><div class="card-desc">${t.description}</div><div class="card-footer-row"><button class="card-category-badge" data-category="${t.category}">${cn}</button><div class="card-actions"><button class="action-btn share-btn" data-tool-id="${t.id}" title="转发"><span class="icon">📤</span><span class="label">转发</span></button><button class="action-btn fav-btn ${fav ? 'favorited' : ''}" data-tool-id="${t.id}"><span class="icon">${fav ? '❤️' : '🤍'}</span><span class="label">收藏</span></button></div></div></div>`; }).join(''); if (curCat === 'favorites') setupDrag(); }
+            gridEl.innerHTML = f.map(t => { const fav = isFav(t.id); const cn = getCats().find(c => c.id === t.category)?.name || t.category || '网站'; return `<div class="card ${t.accentClass}" data-tool-id="${t.id}" data-url="${t.url}" data-title="${t.title}" data-external="${!!t.external}"><div class="card-icon-row"><div class="card-icon ${t.iconBgClass}">${t.icon}</div><div class="card-title">${t.title}</div><span class="open-btn" data-tool-id="${t.id}" title="打开网站"></span></div><div class="card-desc">${t.description}</div><div class="card-footer-row"><button class="card-category-badge" data-category="${t.category}">${cn}</button><div class="card-actions"><button class="action-btn share-btn" data-tool-id="${t.id}" title="转发"><span class="icon">📤</span><span class="label">转发</span></button><button class="action-btn fav-btn ${fav ? 'favorited' : ''}" data-tool-id="${t.id}"><span class="icon">${fav ? '❤️' : '🤍'}</span><span class="label">收藏</span></button></div></div></div>`; }).join(''); if (curCat === 'favorites') setupDrag(); }
         };
 
         renderAll = function() { renderTags(); renderCards(); };
@@ -723,7 +734,7 @@
           const badge = e.target.closest('.card-category-badge'); if (badge) { e.preventDefault(); e.stopPropagation(); if (badge.dataset.category) switchCat(badge.dataset.category); return; }
           const fb = e.target.closest('.fav-btn'); if (fb) { e.preventDefault(); e.stopPropagation(); togFav(fb.dataset.toolId); renderAll(); return; }
           const sb = e.target.closest('.share-btn'); if (sb) { e.preventDefault(); e.stopPropagation(); const card = sb.closest('.card'); if (card) shareTool(card.dataset.url, card.dataset.title); return; }
-          const ob = e.target.closest('.open-btn'); if (ob) { e.preventDefault(); e.stopPropagation(); const card = ob.closest('.card'); if (card) { const u = card.dataset.url; if (u) { if (u.startsWith('http')) openTool(u, card.dataset.title); else openTool(location.origin + '/' + u, card.dataset.title); } } return; }
+          const ob = e.target.closest('.open-btn'); if (ob) { e.preventDefault(); e.stopPropagation(); const card = ob.closest('.card'); if (card) { const u = card.dataset.url; const isExternal = card.dataset.external === 'true'; if (u) { if (u.startsWith('http')) openTool(u, card.dataset.title, isExternal); else openTool(location.origin + '/' + u, card.dataset.title, isExternal); } } return; }
         });
 
         function shareTool(url, title) { const base = location.origin + location.pathname; const su = base + '?open=' + encodeURIComponent(url); if (navigator.share) { navigator.share({ title, text: `试试这个网站：${title}`, url: su }).catch(() => {}); } else { if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(su).then(() => alert('链接已复制，可粘贴分享。')); } else { prompt('复制下面的链接分享给朋友：', su); } } }
@@ -731,7 +742,6 @@
         if (checkShared()) curCat = 'shared';
         searchInp.addEventListener('input', () => { searchQ = searchInp.value; renderCards(); document.querySelectorAll('.category-tag').forEach(b => { b.classList.toggle('active', b.dataset.category === curCat && !searchQ.trim()); }); });
         if (typeof siteFooterText !== 'undefined') document.getElementById('versionNote').textContent = siteFooterText;
-        // 初始显示加载提示
         emptyEl.style.display = 'block';
         emptyText.textContent = '正在加载网站…';
         emptySubText.textContent = '请稍候，网站卡片即将呈现';
