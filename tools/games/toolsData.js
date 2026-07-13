@@ -28,6 +28,17 @@ var gamesTools = [
     icon: '🐟',
     iconBgClass: 'bg-3',
     accentClass: 'accent-3'
+  },
+  {
+    id: 'games-4',
+    title: '花光富翁的钱',
+    url: 'https://www.arealme.com/spend-bill-gates-money/cn/',
+    description: '模拟消费小游戏，体验花光亿万富翁的财富，看看钱到底有多难花完。',
+    category: 'games',
+    icon: '💸',
+    iconBgClass: 'bg-5',
+    accentClass: 'accent-5'
   }
+  
   // 在这里继续添加更多游戏工具
 ];
