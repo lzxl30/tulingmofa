@@ -68,6 +68,16 @@ var gamesTools = [
     icon: '🏘️',
     iconBgClass: 'bg-3',
     accentClass: 'accent-3'
+  },
+  {
+  id: 'games-8',                              // 根据已有游戏序号调整
+  title: '请画一个小人',
+  url: 'https://www.webhek.com/post/draw-a-stickman.html',
+  description: '用画笔亲手绘制火柴人伙伴，和它一起展开奇妙的冒险旅程。',
+  category: 'games',
+  icon: '✏️',
+  iconBgClass: 'bg-1',      // 活泼的粉红渐变，和手绘涂鸦风格很搭
+  accentClass: 'accent-1'
   }
   
   // 在这里继续添加更多游戏工具
