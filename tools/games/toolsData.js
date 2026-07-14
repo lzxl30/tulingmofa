@@ -48,6 +48,16 @@ var gamesTools = [
     icon: '❄️',
     iconBgClass: 'bg-4',
     accentClass: 'accent-4'
+  },
+  {
+  id: 'games-6',               // 如果已有 games-1，用下一个序号
+  title: '星球生成器',
+  url: 'http://oskarstalberg.com/game/planet/planet.html',
+  description: '点击随机生成独一无二的低多边形星球，旋转缩放观察细节，轻松解压。',
+  category: 'games',
+  icon: '🌍',                  // 星球图标，也可用 🌍
+  iconBgClass: 'bg-2',        // 青绿渐变，有太空感，也和游戏的 bg-3 区分开
+  accentClass: 'accent-2'
   }
   
   // 在这里继续添加更多游戏工具
