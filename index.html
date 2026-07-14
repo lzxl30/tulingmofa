@@ -490,6 +490,19 @@
       display: flex; align-items: center; justify-content: space-between;
       padding: 14px 20px; border-bottom: 1px solid var(--border);
       font-weight: 600; font-size: 1rem;
+      gap: 10px;
+    }
+    .modal-header-left {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex: 1;
+      min-width: 0;
+    }
+    .modal-title-text {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     .modal-header-right {
       display: flex;
@@ -505,45 +518,87 @@
       cursor: pointer; padding: 10px 20px; border-radius: 25px;
       transition: all 0.2s; letter-spacing: 0.3px;
       box-shadow: 0 4px 12px rgba(139, 124, 247, 0.3);
+      white-space: nowrap;
     }
     .modal-close:hover { background: var(--primary-light); transform: translateY(-1px); box-shadow: 0 6px 16px rgba(139, 124, 247, 0.5); }
     body.light-mode .modal-close { background: #6c5ce7; color: #fff; }
     body.light-mode .modal-close:hover { background: #5b4cdb; }
-    .modal-iframe-wrap {
-      flex: 1; position: relative; background: #fff;
-      overflow: auto;                         /* 允许滚动 */
-      -webkit-overflow-scrolling: touch;      /* iOS 平滑滚动 */
-    }
-    .modal-iframe-wrap iframe { width: 100%; height: 100%; border: none; min-width: 100%; min-height: 100%; }
-    .modal-loading { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); color: #666; font-size: 0.9rem; }
 
-    /* 可拖拽浮动按钮 */
+    /* 缩放按钮组 */
+    .zoom-btns {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 20px;
+      padding: 2px;
+    }
+    .zoom-btn {
+      width: 30px; height: 30px;
+      border: none;
+      background: transparent;
+      color: var(--text);
+      font-size: 1.2rem;
+      font-weight: 600;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: 0.2s;
+      line-height: 1;
+    }
+    .zoom-btn:active { background: rgba(255,255,255,0.2); }
+    .zoom-value {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      min-width: 35px;
+      text-align: center;
+    }
+
+    .modal-iframe-wrap {
+      flex: 1; position: relative; background: #000; /* 缩放时露出黑色背景 */
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-iframe-wrap .iframe-scaler {
+      width: 100%; height: 100%;
+      transform-origin: center center;
+      transition: transform 0.2s ease;
+    }
+    .modal-iframe-wrap iframe {
+      width: 100%; height: 100%; border: none;
+      display: block;
+    }
+    .modal-loading { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); color: #666; font-size: 0.9rem; z-index: 2; }
+
+    /* 浮动横屏按钮 */
     .rotate-btn-float {
       position: absolute;
-      bottom: 20px;          /* 初始右下角，不挡住顶部的返回按钮 */
-      right: 20px;
-      width: 44px;
-      height: 44px;
-      background: rgba(0,0,0,0.6);
+      top: 10px; left: 50%;
+      transform: translateX(-50%);
+      width: 32px; height: 32px;
+      background: rgba(0,0,0,0.5);
       color: #fff;
       border: none;
-      border-radius: 12px;
-      font-size: 1.2rem;
+      border-radius: 8px;
+      font-size: 1rem;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
       z-index: 1001;
-      transition: 0.2s;
       backdrop-filter: blur(4px);
-      touch-action: none;   /* 防止拖动时页面滚动 */
+      touch-action: none;
       user-select: none;
-      display: none;        /* 桌面端隐藏，手机端显示 */
+      display: none;
     }
     @media (max-width: 600px) {
       .rotate-btn-float { display: flex; }
     }
-    .rotate-btn-float:active { background: rgba(0,0,0,0.8); }
+    .rotate-btn-float:active { background: rgba(0,0,0,0.7); }
 
     /* 横屏模式 */
     .modal-content.landscape .modal-header { display: none; }
@@ -557,9 +612,15 @@
       z-index: 5;
     }
     .modal-content.landscape .rotate-btn-float {
-      position: fixed;    /* 横屏时固定，但依然可拖拽 */
-      bottom: 20px;
-      right: 20px;
+      position: fixed;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    /* 横屏时缩放仍然有效 */
+    .modal-content.landscape .iframe-scaler {
+      width: 100%; height: 100%;
+      transform-origin: center center;
     }
 
     @media (max-width: 600px) {
@@ -578,9 +639,10 @@
       .back-to-top-btn { padding: 3px 10px; font-size: 0.75rem; }
       .header-hint { font-size: 0.65rem; }
       .open-btn { width: 12px; height: 12px; border-width: 2.5px; margin-right: 4px; }
-      .modal-header { padding: 12px 16px; }
-      .modal-close { padding: 8px 16px; font-size: 0.85rem; }
+      .modal-header { padding: 10px 12px; }
+      .modal-close { padding: 8px 14px; font-size: 0.85rem; }
       .fade-mask { width: 55px; }
+      .zoom-btn { width: 26px; height: 26px; font-size: 1rem; }
     }
     @media (min-width: 601px) and (max-width: 1024px) {
       .cards-grid { grid-template-columns: repeat(2, 1fr); }
@@ -630,16 +692,25 @@
   <div class="modal-overlay" id="modalOverlay">
     <div class="modal-content">
       <div class="modal-header">
-        <span id="modalTitle">网站加载中...</span>
+        <div class="modal-header-left">
+          <span class="modal-title-text" id="modalTitle">网站加载中...</span>
+          <div class="zoom-btns">
+            <button class="zoom-btn" id="zoomOutBtn" title="缩小">−</button>
+            <span class="zoom-value" id="zoomValue">100%</span>
+            <button class="zoom-btn" id="zoomInBtn" title="放大">+</button>
+          </div>
+        </div>
         <div class="modal-header-right">
           <button class="modal-close" id="modalClose">← 返回主页</button>
         </div>
       </div>
-      <div class="modal-iframe-wrap">
+      <div class="modal-iframe-wrap" id="iframeWrap">
+        <div class="iframe-scaler" id="iframeScaler">
+          <iframe id="modalIframe" src=""></iframe>
+        </div>
         <div class="modal-loading" id="modalLoading">⏳ 加载中...</div>
-        <iframe id="modalIframe" src=""></iframe>
       </div>
-      <button class="rotate-btn-float" id="modalRotateBtn" title="切换横屏">📱↔️</button>
+      <button class="rotate-btn-float" id="modalRotateBtn">↔️</button>
     </div>
   </div>
 
@@ -681,6 +752,9 @@
       let mo, mIframe, mTitle, mLoad, mClose, mRotateBtn;
       let renderTags, renderCards, renderAll, switchCat, setupDrag;
       let dataLoaded = false;
+      // 缩放相关变量
+      let currentZoom = 1;
+      let zoomInBtn, zoomOutBtn, zoomValueEl, iframeScaler;
 
       const ORDER_KEY = 'categoryOrder_v1';
       function getSavedOrder() { try { return JSON.parse(localStorage.getItem(ORDER_KEY)) || []; } catch { return []; } }
@@ -734,6 +808,10 @@
         topBtn = document.getElementById('backToTopBtn');
         mo = document.getElementById('modalOverlay'); mIframe = document.getElementById('modalIframe'); mTitle = document.getElementById('modalTitle'); mLoad = document.getElementById('modalLoading'); mClose = document.getElementById('modalClose');
         mRotateBtn = document.getElementById('modalRotateBtn');
+        zoomInBtn = document.getElementById('zoomInBtn');
+        zoomOutBtn = document.getElementById('zoomOutBtn');
+        zoomValueEl = document.getElementById('zoomValue');
+        iframeScaler = document.getElementById('iframeScaler');
 
         scrollEl.addEventListener('scroll', updateFadeMask);
         window.addEventListener('resize', updateFadeMask);
@@ -744,6 +822,19 @@
           updateFadeMask();
           renderTags();
         });
+
+        function applyZoom(zoom) {
+          currentZoom = Math.min(2, Math.max(0.25, zoom));
+          iframeScaler.style.transform = `scale(${currentZoom})`;
+          zoomValueEl.textContent = Math.round(currentZoom * 100) + '%';
+        }
+
+        zoomInBtn.addEventListener('click', () => applyZoom(currentZoom + 0.1));
+        zoomOutBtn.addEventListener('click', () => applyZoom(currentZoom - 0.1));
+
+        function resetZoom() {
+          applyZoom(1);
+        }
 
         function openTool(url, title, isExternal) {
           if (isExternal) {
@@ -756,56 +847,55 @@
           mo.classList.add('active');
           document.body.style.overflow = 'hidden';
           mIframe.onload = () => { mLoad.style.display = 'none'; };
-          // 重置浮动按钮位置到右下角
-          mRotateBtn.style.left = 'auto';
-          mRotateBtn.style.top = 'auto';
-          mRotateBtn.style.bottom = '20px';
-          mRotateBtn.style.right = '20px';
-          if (mRotateBtn.textContent === '↔️📱') {
-            // 如果上次是横屏状态，恢复图标
-            mRotateBtn.textContent = '📱↔️';
-          }
+          // 重置缩放
+          resetZoom();
+          // 重置浮动按钮位置
+          mRotateBtn.style.top = '10px';
+          mRotateBtn.style.left = '50%';
+          mRotateBtn.style.transform = 'translateX(-50%)';
+          mRotateBtn.style.bottom = 'auto';
+          mRotateBtn.style.right = 'auto';
+          if (mRotateBtn.textContent !== '↔️') mRotateBtn.textContent = '↔️';
         }
+
         function closeModal() {
           const modalContent = document.querySelector('.modal-content');
           if (modalContent.classList.contains('landscape')) {
             modalContent.classList.remove('landscape');
-            mRotateBtn.textContent = '📱↔️';
           }
           mo.classList.remove('active');
           mIframe.src = '';
           mLoad.style.display = 'block';
           document.body.style.overflow = '';
+          resetZoom();
         }
         mClose.addEventListener('click', closeModal);
         mo.addEventListener('click', (e) => { if (e.target === mo) closeModal(); });
         document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && mo.classList.contains('active')) closeModal(); });
 
-        /* 横屏按钮点击 */
+        /* 横屏切换 */
         mRotateBtn.addEventListener('click', (e) => {
-          // 如果正在拖动，不触发点击
           if (e.target.dataset.dragging === 'true') return;
           const modalContent = document.querySelector('.modal-content');
           if (modalContent.classList.contains('landscape')) {
             modalContent.classList.remove('landscape');
-            mRotateBtn.textContent = '📱↔️';
           } else {
             modalContent.classList.add('landscape');
-            mRotateBtn.textContent = '↔️📱';
           }
         });
 
-        /* 拖动功能 */
+        /* 拖拽逻辑 */
         let isDragging = false;
         let startX, startY, startLeft, startTop;
 
         function onDragStart(e) {
-          isDragging = false; // 先重置
+          isDragging = false;
           const touch = e.touches[0];
           startX = touch.clientX;
           startY = touch.clientY;
-          startLeft = mRotateBtn.offsetLeft;
-          startTop = mRotateBtn.offsetTop;
+          const rect = mRotateBtn.getBoundingClientRect();
+          startLeft = rect.left;
+          startTop = rect.top;
           mRotateBtn.dataset.dragging = 'false';
           mRotateBtn.style.transition = 'none';
         }
@@ -824,22 +914,22 @@
             const rect = modalContent.getBoundingClientRect();
             const btnWidth = mRotateBtn.offsetWidth;
             const btnHeight = mRotateBtn.offsetHeight;
-            let newLeft = startLeft + dx;
-            let newTop = startTop + dy;
-            // 边界限制
+            let newLeft = startLeft + dx - rect.left;
+            let newTop = startTop + dy - rect.top;
             newLeft = Math.max(0, Math.min(newLeft, rect.width - btnWidth));
             newTop = Math.max(0, Math.min(newTop, rect.height - btnHeight));
             mRotateBtn.style.left = newLeft + 'px';
             mRotateBtn.style.top = newTop + 'px';
             mRotateBtn.style.bottom = 'auto';
             mRotateBtn.style.right = 'auto';
+            mRotateBtn.style.transform = 'none';
           }
         }
 
         function onDragEnd(e) {
           mRotateBtn.style.transition = '0.2s';
           if (!isDragging) {
-            // 如果没拖动，视为点击，由 click 事件处理
+            // 轻触
           }
           mRotateBtn.dataset.dragging = 'false';
           isDragging = false;
