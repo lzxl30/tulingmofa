@@ -85,14 +85,8 @@
     }
     body.light-mode .header { background: rgba(255, 255, 255, 0.88); }
     .header-top {
-      max-width: 1350px;
-      margin: 0 auto;
-      padding: 10px 20px 6px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 8px 12px;
+      max-width: 1350px; margin: 0 auto; padding: 10px 20px 6px;
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px 12px;
     }
     .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text); flex-shrink: 0; }
     .logo-icon { width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg, #8b7cf7, #f97ba8); display: flex; align-items: center; justify-content: center; font-size: 20px; color: #fff; box-shadow: 0 4px 12px rgba(139, 124, 247, 0.4); }
@@ -223,7 +217,7 @@
     .iframe-scaler iframe { width: 100%; height: 100%; border: none; display: block; }
     .modal-loading { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); color: #666; font-size: 0.9rem; z-index: 2; }
 
-    /* 横屏模式：旋转 iframe 并隐藏头部 */
+    /* 横屏模式 */
     .modal-content.landscape .modal-header { display: none; }
     .modal-content.landscape .modal-iframe-wrap {
       position: fixed;
@@ -231,26 +225,63 @@
       width: 100vh; height: 100vw;
       transform: rotate(90deg) translateY(-100%);
       transform-origin: top left;
-      overflow: hidden;           /* 重要：避免缩放后出现多余滚动 */
+      overflow: hidden;
       z-index: 5;
     }
     .modal-content.landscape .iframe-scaler { transform-origin: top left; }
 
-    /* 横屏浮动工具栏 */
+    /* 横屏浮动工具栏：放在竖屏视角最下面（横过来右侧下方） */
     .landscape-float-toolbar {
       display: none;
       position: fixed;
-      top: 10px;
-      right: 10px;                /* 横过来后出现在右边 */
+      right: 10px;
+      bottom: 10px;                /* 竖屏底部 => 横过来右侧下方 */
       z-index: 1010;
-      flex-direction: row-reverse; /* 从右向左排列，展开向左 */
-      align-items: center;
-      gap: 6px;
     }
-    .modal-content.landscape .landscape-float-toolbar { display: flex; }
+    .modal-content.landscape .landscape-float-toolbar { display: block; }
+
+    /* V 形按钮（固定不动） */
+    .landscape-toggle-btn {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      width: 36px; height: 36px;
+      background: rgba(255,255,255,0.2);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 10px;
+      color: #fff;
+      font-size: 1.4rem;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: none;
+      line-height: 1;
+      z-index: 2;
+    }
+
+    /* 展开的缩放/恢复竖屏按钮组（旋转90度，竖向排列） */
+    .landscape-expand-btns {
+      position: absolute;
+      right: 44px;                /* V 按钮左侧 */
+      bottom: 0;
+      display: flex;
+      flex-direction: row;       /* 先横向 */
+      align-items: center;
+      gap: 4px;
+      transform: rotate(90deg);   /* 旋转后变成竖向，向左上方延伸 */
+      transform-origin: right bottom;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
+    .landscape-expand-btns.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
 
     .float-tool-btn {
-      width: 32px; height: 32px;
+      width: 28px; height: 28px;   /* 更小尺寸 */
       background: rgba(255,255,255,0.2);
       backdrop-filter: blur(8px);
       border: 1px solid rgba(255,255,255,0.3);
@@ -258,44 +289,14 @@
       color: #fff;
       display: flex; align-items: center; justify-content: center;
       cursor: pointer;
-      font-size: 1rem;
+      font-size: 0.9rem;
       transition: 0.2s;
       -webkit-tap-highlight-color: transparent;
     }
     .float-tool-btn:active { background: rgba(255,255,255,0.35); }
-
-    .landscape-toggle-btn {
-      width: 36px; height: 36px;
-      background: rgba(255,255,255,0.2);
-      backdrop-filter: blur(8px);
-      border: 1px solid rgba(255,255,255,0.3);
-      border-radius: 10px;
-      color: #fff;
-      font-size: 1.2rem;
-      display: flex; align-items: center; justify-content: center;
-      cursor: pointer;
-      -webkit-tap-highlight-color: transparent;
-      touch-action: none;
-      line-height: 1;
-    }
-    .landscape-expand-btns {
-      display: flex;
-      flex-direction: row;        /* 横向排列 */
-      align-items: center;
-      gap: 6px;
-      overflow: hidden;
-      max-width: 0;
-      opacity: 0;
-      transition: max-width 0.3s ease, opacity 0.2s;
-      white-space: nowrap;
-    }
-    .landscape-expand-btns.open {
-      max-width: 200px;
-      opacity: 1;
-    }
     .float-zoom-value {
       color: #fff;
-      font-size: 0.75rem;
+      font-size: 0.7rem;
       white-space: nowrap;
     }
 
@@ -387,12 +388,12 @@
 
       <!-- 横屏浮动工具栏 -->
       <div class="landscape-float-toolbar" id="landscapeFloatToolbar">
-        <div class="landscape-toggle-btn" id="floatToggleBtn">◀</div>
+        <div class="landscape-toggle-btn" id="floatToggleBtn">∨</div>
         <div class="landscape-expand-btns" id="floatExpandBtns">
           <button class="float-tool-btn" id="floatZoomOutBtn" title="缩小">−</button>
           <span class="float-zoom-value" id="floatZoomValue">100%</span>
           <button class="float-tool-btn" id="floatZoomInBtn" title="放大">+</button>
-          <button class="float-tool-btn" id="floatRotateBackBtn" title="恢复竖屏">↺</button>
+          <button class="float-tool-btn" id="floatRotateBackBtn" title="恢复竖屏">↔️</button>
         </div>
       </div>
     </div>
@@ -552,7 +553,6 @@
           if (modalContent.classList.contains('landscape')) {
             modalContent.classList.remove('landscape');
             floatExpandBtns.classList.remove('open');
-            floatToggleBtn.textContent = '◀';
           }
         }
 
@@ -561,7 +561,6 @@
           if (modalContent.classList.contains('landscape')) {
             modalContent.classList.remove('landscape');
             floatExpandBtns.classList.remove('open');
-            floatToggleBtn.textContent = '◀';
           }
           mo.classList.remove('active');
           mIframe.src = '';
@@ -580,7 +579,6 @@
           if (!modalContent) return;
           modalContent.classList.add('landscape');
           floatExpandBtns.classList.remove('open');
-          floatToggleBtn.textContent = '◀';
         });
 
         // 浮动恢复竖屏按钮
@@ -589,16 +587,14 @@
           if (!modalContent) return;
           modalContent.classList.remove('landscape');
           floatExpandBtns.classList.remove('open');
-          floatToggleBtn.textContent = '◀';
         });
 
-        // 切换展开/折叠
+        // V 形按钮：展开/折叠
         function toggleFloatExpand() {
           floatExpandBtns.classList.toggle('open');
-          floatToggleBtn.textContent = floatExpandBtns.classList.contains('open') ? '▶' : '◀';
         }
 
-        // 触摸事件处理点击和拖拽
+        // 触摸事件：拖动和点击
         let isDraggingFloat = false;
         let startX, startY, startLeft, startTop;
 
@@ -634,7 +630,7 @@
         floatToggleBtn.addEventListener('touchend', function(e) {
           landscapeFloatToolbar.style.transition = '0.2s';
           if (!isDraggingFloat) {
-            // 轻触，展开/折叠
+            // 轻触，切换展开
             toggleFloatExpand();
           }
           isDraggingFloat = false;
