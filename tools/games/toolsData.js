@@ -57,7 +57,8 @@ var gamesTools = [
   category: 'games',
   icon: '🌍',                  // 星球图标，也可用 🌍
   iconBgClass: 'bg-2',        // 青绿渐变，有太空感，也和游戏的 bg-3 区分开
-  accentClass: 'accent-2'
+  accentClass: 'accent-2',  
+  external: true          // ← 新增此标记，自动用新窗口打开
   }
   
   // 在这里继续添加更多游戏工具
