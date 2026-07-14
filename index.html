@@ -479,6 +479,7 @@
       display: flex; align-items: center; justify-content: center;
       padding: 0; opacity: 0; visibility: hidden;
       transition: opacity 0.3s, visibility 0.3s;
+      overflow: hidden; /* 防止旋转后溢出 */
     }
     .modal-overlay.active { opacity: 1; visibility: visible; }
     .modal-content {
@@ -486,13 +487,25 @@
       width: 100%; height: 100%; max-height: 100vh;
       display: flex; flex-direction: column;
       box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+      transition: transform 0.3s ease, width 0.3s, height 0.3s;
+      transform-origin: top left;
+    }
+    /* 强制横屏旋转模式 */
+    .modal-content.rotated {
+      width: 100vh;
+      height: 100vw;
+      transform: rotate(90deg) translateY(-100%);
     }
     .modal-header {
       display: flex; align-items: center; justify-content: space-between;
-      padding: 6px 12px;          /* 缩小内边距，让顶部更紧凑 */
+      padding: 6px 12px;
       border-bottom: 1px solid var(--border);
       font-weight: 600; font-size: 0.9rem;
       gap: 8px;
+      /* 旋转后保持头部可用 */
+      position: relative;
+      z-index: 1;
+      background: inherit;
     }
     .modal-title {
       flex: 1; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
@@ -522,8 +535,15 @@
     .modal-close:hover { background: var(--primary-light); transform: translateY(-1px); box-shadow: 0 6px 16px rgba(139, 124, 247, 0.5); }
     body.light-mode .modal-close { background: #6c5ce7; color: #fff; }
     body.light-mode .modal-close:hover { background: #5b4cdb; }
-    .modal-iframe-wrap { flex: 1; position: relative; background: #fff; }
-    .modal-iframe-wrap iframe { width: 100%; height: 100%; border: none; }
+    .modal-iframe-wrap {
+      flex: 1; position: relative; background: #fff;
+      overflow: auto;                     /* 允许内容滚动，防止溢出遮挡 */
+      -webkit-overflow-scrolling: touch;  /* iOS 平滑滚动 */
+    }
+    .modal-iframe-wrap iframe {
+      width: 100%; height: 100%; border: none;
+      min-width: 100%; min-height: 100%;   /* 确保 iframe 填满容器 */
+    }
     .modal-loading { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); color: #666; font-size: 0.9rem; }
 
     @media (max-width: 600px) {
@@ -542,7 +562,7 @@
       .back-to-top-btn { padding: 3px 10px; font-size: 0.75rem; }
       .header-hint { font-size: 0.65rem; }
       .open-btn { width: 12px; height: 12px; border-width: 2.5px; margin-right: 4px; }
-      .modal-header { padding: 4px 10px; }   /* 手机端进一步减小 */
+      .modal-header { padding: 4px 10px; }
       .modal-close { padding: 4px 10px; font-size: 0.8rem; }
       .modal-rotate-btn { font-size: 1.1rem; }
       .fade-mask { width: 55px; }
@@ -594,11 +614,11 @@
 
   <!-- 模态框 -->
   <div class="modal-overlay" id="modalOverlay">
-    <div class="modal-content">
+    <div class="modal-content" id="modalContent">
       <div class="modal-header">
         <span class="modal-title" id="modalTitle">网站加载中...</span>
         <div class="modal-actions">
-          <button class="modal-rotate-btn" id="modalRotateBtn" title="切换横屏">↔️</button>
+          <button class="modal-rotate-btn" id="modalRotateBtn" title="强制横屏/竖屏">↔️</button>
           <button class="modal-close" id="modalClose">← 返回</button>
         </div>
       </div>
@@ -644,7 +664,7 @@
       let favs, shuffled;
       let scrollEl, expandBtn, fadeMask;
       let gridEl, emptyEl, emptyText, emptySubText, infoEl, searchInp, themeBtn, topBtn;
-      let mo, mIframe, mTitle, mLoad, mClose, mRotateBtn;
+      let mo, mContent, mIframe, mTitle, mLoad, mClose, mRotateBtn;
       let renderTags, renderCards, renderAll, switchCat, setupDrag;
       let dataLoaded = false;
 
@@ -698,7 +718,12 @@
         searchInp = document.getElementById('searchInput');
         themeBtn = document.getElementById('themeToggle');
         topBtn = document.getElementById('backToTopBtn');
-        mo = document.getElementById('modalOverlay'); mIframe = document.getElementById('modalIframe'); mTitle = document.getElementById('modalTitle'); mLoad = document.getElementById('modalLoading'); mClose = document.getElementById('modalClose');
+        mo = document.getElementById('modalOverlay');
+        mContent = document.getElementById('modalContent');
+        mIframe = document.getElementById('modalIframe');
+        mTitle = document.getElementById('modalTitle');
+        mLoad = document.getElementById('modalLoading');
+        mClose = document.getElementById('modalClose');
         mRotateBtn = document.getElementById('modalRotateBtn');
 
         scrollEl.addEventListener('scroll', updateFadeMask);
@@ -716,6 +741,9 @@
             window.open(url, '_blank');
             return;
           }
+          // 重置横屏状态
+          mContent.classList.remove('rotated');
+          mRotateBtn.textContent = '↔️';
           mTitle.textContent = title;
           mLoad.style.display = 'block';
           mIframe.src = url;
@@ -723,36 +751,29 @@
           document.body.style.overflow = 'hidden';
           mIframe.onload = () => { mLoad.style.display = 'none'; };
         }
-        function closeModal() { mo.classList.remove('active'); mIframe.src = ''; mLoad.style.display = 'block'; document.body.style.overflow = ''; }
+        function closeModal() {
+          mo.classList.remove('active');
+          mIframe.src = '';
+          mLoad.style.display = 'block';
+          document.body.style.overflow = '';
+          // 关闭时也重置旋转
+          mContent.classList.remove('rotated');
+          mRotateBtn.textContent = '↔️';
+        }
         mClose.addEventListener('click', closeModal);
         mo.addEventListener('click', (e) => { if (e.target === mo) closeModal(); });
         document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && mo.classList.contains('active')) closeModal(); });
 
-        // ---------- 横屏按钮逻辑 ----------
-        function updateRotateIcon() {
-          if (!mRotateBtn) return;
-          const isLandscape = window.matchMedia('(orientation: landscape)').matches;
-          mRotateBtn.textContent = isLandscape ? '↕️' : '↔️';
-        }
-        window.addEventListener('orientationchange', () => {
-          setTimeout(updateRotateIcon, 100);  // 延迟等待屏幕旋转完成
-        });
-        updateRotateIcon();
-
+        // ---------- 强制横屏按钮逻辑 ----------
         mRotateBtn.addEventListener('click', () => {
-          const isLandscape = window.matchMedia('(orientation: landscape)').matches;
-          if (screen.orientation && screen.orientation.lock) {
-            try {
-              if (isLandscape) {
-                screen.orientation.lock('portrait');
-              } else {
-                screen.orientation.lock('landscape');
-              }
-            } catch (err) {
-              alert('当前环境不支持自动旋转，请手动旋转手机。');
-            }
+          if (mContent.classList.contains('rotated')) {
+            // 当前是横屏，切回竖屏
+            mContent.classList.remove('rotated');
+            mRotateBtn.textContent = '↔️'; // 提示可转为横屏
           } else {
-            alert('该浏览器不支持屏幕方向锁定，请手动旋转手机。');
+            // 当前是竖屏，强制转为横屏
+            mContent.classList.add('rotated');
+            mRotateBtn.textContent = '↕️'; // 提示可转回竖屏
           }
         });
 
