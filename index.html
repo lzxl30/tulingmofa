@@ -159,7 +159,6 @@
     }
     .header-hint a:hover { color: var(--accent-1); }
 
-    /* 分类标签栏 */
     .category-bar-wrap {
       position: relative;
       max-width: 1350px;
@@ -485,6 +484,7 @@
       width: 100%; height: 100%; max-height: 100vh;
       display: flex; flex-direction: column;
       box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+      position: relative; /* 为了浮动按钮定位 */
     }
     .modal-header {
       display: flex; align-items: center; justify-content: space-between;
@@ -496,22 +496,6 @@
       align-items: center;
       gap: 6px;
     }
-    .rotate-btn {
-      background: transparent;
-      border: none;
-      color: var(--text-secondary);
-      font-size: 1.2rem;
-      cursor: pointer;
-      padding: 4px 8px;
-      border-radius: 6px;
-      transition: 0.2s;
-      display: none;            /* 大屏幕隐藏 */
-    }
-    @media (max-width: 600px) {
-      .rotate-btn { display: inline-flex; align-items: center; justify-content: center; }
-    }
-    .rotate-btn:active { background: rgba(255,255,255,0.1); }
-
     .modal-close {
       display: inline-flex;
       align-items: center;
@@ -529,23 +513,49 @@
     .modal-iframe-wrap iframe { width: 100%; height: 100%; border: none; }
     .modal-loading { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); color: #666; font-size: 0.9rem; }
 
-    /* 横屏模式 */
-    .modal-content.landscape .modal-header,
-    .modal-content.landscape .modal-close,
-    .modal-content.landscape .rotate-btn {
-      display: none;
+    /* ===== 横屏按钮（浮动） ===== */
+    .rotate-btn-float {
+      position: absolute;
+      top: 10px; right: 10px;
+      width: 40px; height: 40px;
+      background: rgba(0,0,0,0.5);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.2rem;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      z-index: 20;
+      transition: 0.2s;
+      backdrop-filter: blur(4px);
+      display: none; /* 默认隐藏，手机端才显示 */
     }
+    @media (max-width: 600px) {
+      .rotate-btn-float { display: flex; }
+    }
+    .rotate-btn-float:active { background: rgba(0,0,0,0.7); }
+
+    /* 横屏模式下的样式调整 */
+    .modal-content.landscape .modal-header {
+      display: none;  /* 横屏时隐藏顶部标题栏，给网页更多空间 */
+    }
+    /* 横屏时 iframe 旋转并铺满全屏 */
     .modal-content.landscape .modal-iframe-wrap {
-      transform: rotate(90deg);
-      transform-origin: center center;
+      position: fixed;
+      top: 0;
+      left: 0;
       width: 100vh;
       height: 100vw;
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      margin-left: -50vw;
-      margin-top: -50vh;
+      transform: rotate(90deg) translateY(-100%);
+      transform-origin: top left;
       overflow: hidden;
+      z-index: 5;
+    }
+    /* 横屏时浮动按钮保持在屏幕固定位置 */
+    .modal-content.landscape .rotate-btn-float {
+      position: fixed;
+      top: 10px;
+      right: 10px;
     }
 
     @media (max-width: 600px) {
@@ -618,7 +628,6 @@
       <div class="modal-header">
         <span id="modalTitle">网站加载中...</span>
         <div class="modal-header-right">
-          <button class="rotate-btn" id="modalRotateBtn" title="横屏模式">📱↔️</button>
           <button class="modal-close" id="modalClose">← 返回主页</button>
         </div>
       </div>
@@ -626,6 +635,8 @@
         <div class="modal-loading" id="modalLoading">⏳ 加载中...</div>
         <iframe id="modalIframe" src=""></iframe>
       </div>
+      <!-- 浮动横屏按钮，始终在 modal-content 内部，但手机端显示 -->
+      <button class="rotate-btn-float" id="modalRotateBtn" title="切换横屏">📱↔️</button>
     </div>
   </div>
 
