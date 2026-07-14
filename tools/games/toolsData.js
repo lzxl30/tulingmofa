@@ -59,6 +59,16 @@ var gamesTools = [
   iconBgClass: 'bg-2',        // 青绿渐变，有太空感，也和游戏的 bg-3 区分开
   accentClass: 'accent-2',  
   external: true          // ← 新增此标记，自动用新窗口打开
+  },
+  {
+    id: 'games-3',
+    title: '城镇叠叠乐',
+    url: 'https://oskarstalberg.com/Townscaper/',
+    description: '首次加载可能较慢,轻松点击建造多彩的立体城镇，没有目标，只有纯粹的创作乐趣。',
+    category: 'games',
+    icon: '🏘️',
+    iconBgClass: 'bg-3',
+    accentClass: 'accent-3'
   }
   
   // 在这里继续添加更多游戏工具
