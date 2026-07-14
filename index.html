@@ -484,7 +484,7 @@
       width: 100%; height: 100%; max-height: 100vh;
       display: flex; flex-direction: column;
       box-shadow: 0 20px 50px rgba(0,0,0,0.6);
-      position: relative; /* 为了浮动按钮定位 */
+      position: relative;
     }
     .modal-header {
       display: flex; align-items: center; justify-content: space-between;
@@ -509,53 +509,57 @@
     .modal-close:hover { background: var(--primary-light); transform: translateY(-1px); box-shadow: 0 6px 16px rgba(139, 124, 247, 0.5); }
     body.light-mode .modal-close { background: #6c5ce7; color: #fff; }
     body.light-mode .modal-close:hover { background: #5b4cdb; }
-    .modal-iframe-wrap { flex: 1; position: relative; background: #fff; }
-    .modal-iframe-wrap iframe { width: 100%; height: 100%; border: none; }
+    .modal-iframe-wrap {
+      flex: 1; position: relative; background: #fff;
+      overflow: auto;                         /* 允许滚动 */
+      -webkit-overflow-scrolling: touch;      /* iOS 平滑滚动 */
+    }
+    .modal-iframe-wrap iframe { width: 100%; height: 100%; border: none; min-width: 100%; min-height: 100%; }
     .modal-loading { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); color: #666; font-size: 0.9rem; }
 
-    /* ===== 横屏按钮（浮动） ===== */
+    /* 可拖拽浮动按钮 */
     .rotate-btn-float {
       position: absolute;
-      top: 10px; right: 10px;
-      width: 40px; height: 40px;
-      background: rgba(0,0,0,0.5);
+      bottom: 20px;          /* 初始右下角，不挡住顶部的返回按钮 */
+      right: 20px;
+      width: 44px;
+      height: 44px;
+      background: rgba(0,0,0,0.6);
       color: #fff;
       border: none;
-      border-radius: 8px;
+      border-radius: 12px;
       font-size: 1.2rem;
-      display: flex; align-items: center; justify-content: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       cursor: pointer;
-      z-index: 20;
+      z-index: 1001;
       transition: 0.2s;
       backdrop-filter: blur(4px);
-      display: none; /* 默认隐藏，手机端才显示 */
+      touch-action: none;   /* 防止拖动时页面滚动 */
+      user-select: none;
+      display: none;        /* 桌面端隐藏，手机端显示 */
     }
     @media (max-width: 600px) {
       .rotate-btn-float { display: flex; }
     }
-    .rotate-btn-float:active { background: rgba(0,0,0,0.7); }
+    .rotate-btn-float:active { background: rgba(0,0,0,0.8); }
 
-    /* 横屏模式下的样式调整 */
-    .modal-content.landscape .modal-header {
-      display: none;  /* 横屏时隐藏顶部标题栏，给网页更多空间 */
-    }
-    /* 横屏时 iframe 旋转并铺满全屏 */
+    /* 横屏模式 */
+    .modal-content.landscape .modal-header { display: none; }
     .modal-content.landscape .modal-iframe-wrap {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vh;
-      height: 100vw;
+      top: 0; left: 0;
+      width: 100vh; height: 100vw;
       transform: rotate(90deg) translateY(-100%);
       transform-origin: top left;
       overflow: hidden;
       z-index: 5;
     }
-    /* 横屏时浮动按钮保持在屏幕固定位置 */
     .modal-content.landscape .rotate-btn-float {
-      position: fixed;
-      top: 10px;
-      right: 10px;
+      position: fixed;    /* 横屏时固定，但依然可拖拽 */
+      bottom: 20px;
+      right: 20px;
     }
 
     @media (max-width: 600px) {
@@ -635,7 +639,6 @@
         <div class="modal-loading" id="modalLoading">⏳ 加载中...</div>
         <iframe id="modalIframe" src=""></iframe>
       </div>
-      <!-- 浮动横屏按钮，始终在 modal-content 内部，但手机端显示 -->
       <button class="rotate-btn-float" id="modalRotateBtn" title="切换横屏">📱↔️</button>
     </div>
   </div>
@@ -753,6 +756,15 @@
           mo.classList.add('active');
           document.body.style.overflow = 'hidden';
           mIframe.onload = () => { mLoad.style.display = 'none'; };
+          // 重置浮动按钮位置到右下角
+          mRotateBtn.style.left = 'auto';
+          mRotateBtn.style.top = 'auto';
+          mRotateBtn.style.bottom = '20px';
+          mRotateBtn.style.right = '20px';
+          if (mRotateBtn.textContent === '↔️📱') {
+            // 如果上次是横屏状态，恢复图标
+            mRotateBtn.textContent = '📱↔️';
+          }
         }
         function closeModal() {
           const modalContent = document.querySelector('.modal-content');
@@ -769,7 +781,10 @@
         mo.addEventListener('click', (e) => { if (e.target === mo) closeModal(); });
         document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && mo.classList.contains('active')) closeModal(); });
 
-        mRotateBtn.addEventListener('click', () => {
+        /* 横屏按钮点击 */
+        mRotateBtn.addEventListener('click', (e) => {
+          // 如果正在拖动，不触发点击
+          if (e.target.dataset.dragging === 'true') return;
           const modalContent = document.querySelector('.modal-content');
           if (modalContent.classList.contains('landscape')) {
             modalContent.classList.remove('landscape');
@@ -779,6 +794,60 @@
             mRotateBtn.textContent = '↔️📱';
           }
         });
+
+        /* 拖动功能 */
+        let isDragging = false;
+        let startX, startY, startLeft, startTop;
+
+        function onDragStart(e) {
+          isDragging = false; // 先重置
+          const touch = e.touches[0];
+          startX = touch.clientX;
+          startY = touch.clientY;
+          startLeft = mRotateBtn.offsetLeft;
+          startTop = mRotateBtn.offsetTop;
+          mRotateBtn.dataset.dragging = 'false';
+          mRotateBtn.style.transition = 'none';
+        }
+
+        function onDragMove(e) {
+          const touch = e.touches[0];
+          const dx = touch.clientX - startX;
+          const dy = touch.clientY - startY;
+          if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
+            isDragging = true;
+            mRotateBtn.dataset.dragging = 'true';
+          }
+          if (isDragging) {
+            e.preventDefault();
+            const modalContent = document.querySelector('.modal-content');
+            const rect = modalContent.getBoundingClientRect();
+            const btnWidth = mRotateBtn.offsetWidth;
+            const btnHeight = mRotateBtn.offsetHeight;
+            let newLeft = startLeft + dx;
+            let newTop = startTop + dy;
+            // 边界限制
+            newLeft = Math.max(0, Math.min(newLeft, rect.width - btnWidth));
+            newTop = Math.max(0, Math.min(newTop, rect.height - btnHeight));
+            mRotateBtn.style.left = newLeft + 'px';
+            mRotateBtn.style.top = newTop + 'px';
+            mRotateBtn.style.bottom = 'auto';
+            mRotateBtn.style.right = 'auto';
+          }
+        }
+
+        function onDragEnd(e) {
+          mRotateBtn.style.transition = '0.2s';
+          if (!isDragging) {
+            // 如果没拖动，视为点击，由 click 事件处理
+          }
+          mRotateBtn.dataset.dragging = 'false';
+          isDragging = false;
+        }
+
+        mRotateBtn.addEventListener('touchstart', onDragStart);
+        mRotateBtn.addEventListener('touchmove', onDragMove);
+        mRotateBtn.addEventListener('touchend', onDragEnd);
 
         topBtn.addEventListener('click', () => {
           window.scrollTo(0, 0);
