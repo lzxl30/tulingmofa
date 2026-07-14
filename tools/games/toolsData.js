@@ -61,7 +61,7 @@ var gamesTools = [
   external: true          // ← 新增此标记，自动用新窗口打开
   },
   {
-    id: 'games-3',
+    id: 'games-7',
     title: '城镇叠叠乐',
     url: 'https://oskarstalberg.com/Townscaper/',
     description: '首次加载可能较慢,轻松点击建造多彩的立体城镇，没有目标，只有纯粹的创作乐趣。',
