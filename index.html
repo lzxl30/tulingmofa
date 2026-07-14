@@ -72,7 +72,6 @@
       padding-bottom: 100px;
     }
 
-    .header { /* ... 未改动，已省略保持原样 ... */ }
     .header {
       background: var(--card-bg);
       border-bottom: 1px solid var(--border);
@@ -248,7 +247,6 @@
     }
     .category-scroll.expanded .sort-hint { display: block; }
 
-    .fade-mask { /* ... */ }
     .fade-mask {
       pointer-events: none;
       position: absolute;
@@ -428,7 +426,11 @@
     body.light-mode .back-to-top-btn { color: #2d2e3a; }
     body.light-mode .back-to-top-btn:hover { color: #6c5ce7; }
 
-    .channel-row { display: flex; align-items: center; gap: 6px; }
+    .channel-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
     .channel-btn {
       display: inline-flex;
       align-items: center;
@@ -445,98 +447,106 @@
       box-shadow: 0 2px 6px rgba(0,0,0,0.2);
       -webkit-tap-highlight-color: transparent;
     }
-    .channel-btn:hover { background: linear-gradient(135deg, #3d3f5c, #2d2f44); border-color: #8b7cf7; transform: translateY(-1px); color: #fff; }
-    body.light-mode .channel-btn { background: #f0f1f6; border-color: #cdd0dd; color: #2d2e3a; }
-    body.light-mode .channel-btn:hover { background: #e6e8f2; border-color: #6c5ce7; }
+    .channel-btn:hover {
+      background: linear-gradient(135deg, #3d3f5c, #2d2f44);
+      border-color: #8b7cf7;
+      transform: translateY(-1px);
+      color: #fff;
+    }
+    body.light-mode .channel-btn {
+      background: #f0f1f6;
+      border-color: #cdd0dd;
+      color: #2d2e3a;
+    }
+    body.light-mode .channel-btn:hover {
+      background: #e6e8f2;
+      border-color: #6c5ce7;
+    }
 
     .fixed-bottom-bar .btn-icon { font-size: 0.95rem; }
-    .footer-note { color: var(--text-secondary); font-size: 0.65rem; text-align: center; margin: 2px 0 0 0; opacity: 0.75; }
+    .footer-note {
+      color: var(--text-secondary);
+      font-size: 0.65rem;
+      text-align: center;
+      margin: 2px 0 0 0;
+      opacity: 0.75;
+    }
 
-    /* ---------- 模态框优化 ---------- */
     .modal-overlay {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background: rgba(0,0,0,0.75); z-index: 1000;
       display: flex; align-items: center; justify-content: center;
       padding: 0; opacity: 0; visibility: hidden;
       transition: opacity 0.3s, visibility 0.3s;
-      overflow: hidden;
     }
     .modal-overlay.active { opacity: 1; visibility: visible; }
     .modal-content {
-      background: var(--card-bg);
+      background: var(--card-bg); border-radius: 0;
       width: 100%; height: 100%; max-height: 100vh;
       display: flex; flex-direction: column;
       box-shadow: 0 20px 50px rgba(0,0,0,0.6);
-      transition: transform 0.3s ease, width 0.3s, height 0.3s;
-    }
-    /* 强制横屏旋转：占满全屏，不留边 */
-    .modal-content.rotated {
-      width: 100vh;
-      height: 100vw;
-      transform: rotate(90deg) translateY(-100%);
-      transform-origin: top left;
     }
     .modal-header {
       display: flex; align-items: center; justify-content: space-between;
-      padding: 4px 10px;
-      border-bottom: 1px solid var(--border);
-      font-weight: 600; font-size: 0.85rem;
+      padding: 14px 20px; border-bottom: 1px solid var(--border);
+      font-weight: 600; font-size: 1rem;
+    }
+    .modal-header-right {
+      display: flex;
+      align-items: center;
       gap: 6px;
-      background: inherit;
-      z-index: 1;
-      flex-wrap: wrap;        /* 允许缩放按钮换行 */
     }
-    .modal-title {
-      flex: 1; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
-      font-size: 0.85rem; min-width: 40px;
+    .rotate-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 6px;
+      transition: 0.2s;
+      display: none;            /* 大屏幕隐藏 */
     }
-    .modal-actions {
-      display: flex; align-items: center; gap: 4px;
+    @media (max-width: 600px) {
+      .rotate-btn { display: inline-flex; align-items: center; justify-content: center; }
     }
-    .modal-rotate-btn,
-    .modal-scale-btn {
-      background: none; border: none; color: var(--text-secondary);
-      font-size: 1.1rem; cursor: pointer; padding: 4px;
-      border-radius: 6px; line-height: 1;
-      transition: color 0.2s;
-    }
-    .modal-rotate-btn:hover,
-    .modal-scale-btn:hover { color: var(--text); background: rgba(255,255,255,0.1); }
-    .scale-value {
-      font-size: 0.7rem; color: var(--text-secondary); margin: 0 2px;
-      min-width: 32px; text-align: center;
-    }
+    .rotate-btn:active { background: rgba(255,255,255,0.1); }
+
     .modal-close {
       display: inline-flex;
       align-items: center;
-      gap: 4px;
+      gap: 6px;
       background: var(--primary); border: none;
-      color: #fff; font-size: 0.8rem; font-weight: 600;
-      cursor: pointer; padding: 4px 12px; border-radius: 25px;
+      color: #fff; font-size: 0.95rem; font-weight: 600;
+      cursor: pointer; padding: 10px 20px; border-radius: 25px;
       transition: all 0.2s; letter-spacing: 0.3px;
       box-shadow: 0 4px 12px rgba(139, 124, 247, 0.3);
-      white-space: nowrap;
     }
     .modal-close:hover { background: var(--primary-light); transform: translateY(-1px); box-shadow: 0 6px 16px rgba(139, 124, 247, 0.5); }
     body.light-mode .modal-close { background: #6c5ce7; color: #fff; }
     body.light-mode .modal-close:hover { background: #5b4cdb; }
-
-    /* iframe 容器支持缩放 */
-    .modal-iframe-wrap {
-      flex: 1; position: relative; background: #fff;
-      overflow: auto;
-      -webkit-overflow-scrolling: touch;
-    }
-    .iframe-scaler {
-      width: 100%; height: 100%;
-      transform-origin: top left;
-      transition: transform 0.1s ease-out;
-    }
-    .iframe-scaler iframe {
-      width: 100%; height: 100%; border: none;
-      min-width: 100%; min-height: 100%;
-    }
+    .modal-iframe-wrap { flex: 1; position: relative; background: #fff; }
+    .modal-iframe-wrap iframe { width: 100%; height: 100%; border: none; }
     .modal-loading { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); color: #666; font-size: 0.9rem; }
+
+    /* 横屏模式 */
+    .modal-content.landscape .modal-header,
+    .modal-content.landscape .modal-close,
+    .modal-content.landscape .rotate-btn {
+      display: none;
+    }
+    .modal-content.landscape .modal-iframe-wrap {
+      transform: rotate(90deg);
+      transform-origin: center center;
+      width: 100vh;
+      height: 100vw;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      margin-left: -50vw;
+      margin-top: -50vh;
+      overflow: hidden;
+    }
 
     @media (max-width: 600px) {
       .header-top { padding: 8px 12px 4px; gap: 6px; }
@@ -554,9 +564,8 @@
       .back-to-top-btn { padding: 3px 10px; font-size: 0.75rem; }
       .header-hint { font-size: 0.65rem; }
       .open-btn { width: 12px; height: 12px; border-width: 2.5px; margin-right: 4px; }
-      .modal-header { padding: 4px 8px; }
-      .modal-close { padding: 4px 8px; font-size: 0.75rem; }
-      .modal-rotate-btn, .modal-scale-btn { font-size: 1rem; }
+      .modal-header { padding: 12px 16px; }
+      .modal-close { padding: 8px 16px; font-size: 0.85rem; }
       .fade-mask { width: 55px; }
     }
     @media (min-width: 601px) and (max-width: 1024px) {
@@ -604,25 +613,18 @@
     </div>
   </div>
 
-  <!-- 模态框 -->
   <div class="modal-overlay" id="modalOverlay">
-    <div class="modal-content" id="modalContent">
+    <div class="modal-content">
       <div class="modal-header">
-        <span class="modal-title" id="modalTitle">网站加载中...</span>
-        <div class="modal-actions">
-          <button class="modal-scale-btn" id="scaleOutBtn" title="缩小">−</button>
-          <span class="scale-value" id="scaleValue">100%</span>
-          <button class="modal-scale-btn" id="scaleInBtn" title="放大">+</button>
-          <button class="modal-scale-btn" id="scaleResetBtn" title="重置">↺</button>
-          <button class="modal-rotate-btn" id="modalRotateBtn" title="强制横屏/竖屏">↔️</button>
-          <button class="modal-close" id="modalClose">← 返回</button>
+        <span id="modalTitle">网站加载中...</span>
+        <div class="modal-header-right">
+          <button class="rotate-btn" id="modalRotateBtn" title="横屏模式">📱↔️</button>
+          <button class="modal-close" id="modalClose">← 返回主页</button>
         </div>
       </div>
-      <div class="modal-iframe-wrap" id="iframeWrap">
-        <div class="iframe-scaler" id="iframeScaler">
-          <iframe id="modalIframe" src=""></iframe>
-        </div>
+      <div class="modal-iframe-wrap">
         <div class="modal-loading" id="modalLoading">⏳ 加载中...</div>
+        <iframe id="modalIframe" src=""></iframe>
       </div>
     </div>
   </div>
@@ -642,11 +644,15 @@
 
   <script>
     if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => { navigator.serviceWorker.register('/service-worker.js').catch(() => {}); });
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker.js').catch(() => {});
+      });
     }
   </script>
+
   <script src="categories.js"></script>
   <script src="version.js"></script>
+
   <script>
     (function() {
       if (typeof categoryConfigs === 'undefined') { console.error('❌ categories.js 未加载'); return; }
@@ -658,9 +664,7 @@
       let favs, shuffled;
       let scrollEl, expandBtn, fadeMask;
       let gridEl, emptyEl, emptyText, emptySubText, infoEl, searchInp, themeBtn, topBtn;
-      let mo, mContent, mIframe, mTitle, mLoad, mClose, mRotateBtn;
-      let scaleOut, scaleIn, scaleReset, scaleValue, iframeScaler;
-      let currentScale = 1;
+      let mo, mIframe, mTitle, mLoad, mClose, mRotateBtn;
       let renderTags, renderCards, renderAll, switchCat, setupDrag;
       let dataLoaded = false;
 
@@ -672,7 +676,9 @@
         if (!scrollEl || !fadeMask) return;
         if (scrollEl.classList.contains('expanded') || scrollEl.scrollWidth <= scrollEl.clientWidth + 2) {
           fadeMask.classList.add('hidden');
-        } else { fadeMask.classList.remove('hidden'); }
+        } else {
+          fadeMask.classList.remove('hidden');
+        }
       }
 
       function initFramework() {
@@ -684,7 +690,11 @@
         function checkShared() {
           const p = new URLSearchParams(location.search);
           const o = p.get('open');
-          if (o) { sharedUrl = decodeURIComponent(o); sharedCat = { id: 'shared', name: '来自分享', icon: '🔗' }; return true; }
+          if (o) {
+            sharedUrl = decodeURIComponent(o);
+            sharedCat = { id: 'shared', name: '来自分享', icon: '🔗' };
+            return true;
+          }
           return false;
         }
         function getCats() { const saved = getSavedOrder(); let ordered = []; if (saved.length) { const map = new Map(dynCats.map(c => [c.id, c])); saved.forEach(id => { if (map.has(id)) ordered.push(map.get(id)); }); dynCats.forEach(c => { if (!saved.includes(c.id)) ordered.push(c); }); } else { ordered = [...dynCats]; } const cats = [builtIn[0], builtIn[1], ...ordered]; if (sharedCat) cats.unshift(sharedCat); return cats; }
@@ -708,18 +718,8 @@
         searchInp = document.getElementById('searchInput');
         themeBtn = document.getElementById('themeToggle');
         topBtn = document.getElementById('backToTopBtn');
-        mo = document.getElementById('modalOverlay');
-        mContent = document.getElementById('modalContent');
-        mIframe = document.getElementById('modalIframe');
-        mTitle = document.getElementById('modalTitle');
-        mLoad = document.getElementById('modalLoading');
-        mClose = document.getElementById('modalClose');
+        mo = document.getElementById('modalOverlay'); mIframe = document.getElementById('modalIframe'); mTitle = document.getElementById('modalTitle'); mLoad = document.getElementById('modalLoading'); mClose = document.getElementById('modalClose');
         mRotateBtn = document.getElementById('modalRotateBtn');
-        scaleOut = document.getElementById('scaleOutBtn');
-        scaleIn = document.getElementById('scaleInBtn');
-        scaleReset = document.getElementById('scaleResetBtn');
-        scaleValue = document.getElementById('scaleValue');
-        iframeScaler = document.getElementById('iframeScaler');
 
         scrollEl.addEventListener('scroll', updateFadeMask);
         window.addEventListener('resize', updateFadeMask);
@@ -731,18 +731,11 @@
           renderTags();
         });
 
-        function applyScale(s) {
-          currentScale = Math.min(3, Math.max(0.3, s));
-          iframeScaler.style.transform = `scale(${currentScale})`;
-          scaleValue.textContent = Math.round(currentScale * 100) + '%';
-        }
-
         function openTool(url, title, isExternal) {
-          if (isExternal) { window.open(url, '_blank'); return; }
-          // 重置状态
-          mContent.classList.remove('rotated');
-          mRotateBtn.textContent = '↔️';
-          applyScale(1);  // 重置缩放
+          if (isExternal) {
+            window.open(url, '_blank');
+            return;
+          }
           mTitle.textContent = title;
           mLoad.style.display = 'block';
           mIframe.src = url;
@@ -751,39 +744,38 @@
           mIframe.onload = () => { mLoad.style.display = 'none'; };
         }
         function closeModal() {
+          const modalContent = document.querySelector('.modal-content');
+          if (modalContent.classList.contains('landscape')) {
+            modalContent.classList.remove('landscape');
+            mRotateBtn.textContent = '📱↔️';
+          }
           mo.classList.remove('active');
           mIframe.src = '';
           mLoad.style.display = 'block';
           document.body.style.overflow = '';
-          mContent.classList.remove('rotated');
-          mRotateBtn.textContent = '↔️';
-          applyScale(1);
         }
         mClose.addEventListener('click', closeModal);
         mo.addEventListener('click', (e) => { if (e.target === mo) closeModal(); });
         document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && mo.classList.contains('active')) closeModal(); });
 
-        // 横屏按钮
         mRotateBtn.addEventListener('click', () => {
-          if (mContent.classList.contains('rotated')) {
-            mContent.classList.remove('rotated');
-            mRotateBtn.textContent = '↔️';
+          const modalContent = document.querySelector('.modal-content');
+          if (modalContent.classList.contains('landscape')) {
+            modalContent.classList.remove('landscape');
+            mRotateBtn.textContent = '📱↔️';
           } else {
-            mContent.classList.add('rotated');
-            mRotateBtn.textContent = '↕️';
+            modalContent.classList.add('landscape');
+            mRotateBtn.textContent = '↔️📱';
           }
         });
-
-        // 缩放按钮
-        scaleOut.addEventListener('click', () => applyScale(currentScale - 0.1));
-        scaleIn.addEventListener('click', () => applyScale(currentScale + 0.1));
-        scaleReset.addEventListener('click', () => applyScale(1));
 
         topBtn.addEventListener('click', () => {
           window.scrollTo(0, 0);
           requestAnimationFrame(() => {
             requestAnimationFrame(() => {
-              if (curCat !== 'favorites' && curCat !== 'shared') delete shuffled[curCat];
+              if (curCat !== 'favorites' && curCat !== 'shared') {
+                delete shuffled[curCat];
+              }
               renderAll();
             });
           });
@@ -814,7 +806,12 @@
             const handle = isBuiltIn ? '' : '<span class="drag-handle">⋮⋮</span>';
             return `<button class="category-tag${curCat === c.id ? ' active' : ''}" data-category="${c.id}" ${(!isBuiltIn && isExpanded) ? 'draggable="true"' : ''}>${handle}${c.name}<span class="count">${n}</span></button>`;
           }).join('');
-          if (isExpanded) { const hint = document.createElement('div'); hint.className = 'sort-hint'; hint.textContent = '↕️ 拖拽调整分类顺序，点击分类可刷新网站排序'; scrollEl.appendChild(hint); }
+          if (isExpanded) {
+            const hint = document.createElement('div');
+            hint.className = 'sort-hint';
+            hint.textContent = '↕️ 拖拽调整分类顺序，点击分类可刷新网站排序';
+            scrollEl.appendChild(hint);
+          }
           scrollEl.querySelectorAll('.category-tag').forEach(btn => {
             btn.addEventListener('click', () => switchCat(btn.dataset.category));
             if (btn.draggable) {
@@ -854,15 +851,22 @@
           if (f.length === 0) {
             gridEl.innerHTML = '';
             emptyEl.style.display = 'block';
-            if (!dataLoaded) { emptyText.textContent = '正在加载网站…'; emptySubText.textContent = '请稍候，网站卡片即将呈现'; }
-            else if (curCat === 'favorites') { emptyText.textContent = '暂无收藏'; emptySubText.textContent = '点击心形图标收藏喜欢的网站吧'; }
-            else if (curCat === 'shared') { emptyText.textContent = '未找到该网站'; emptySubText.textContent = '请检查链接是否正确'; }
-            else { emptyText.textContent = '暂无内容'; emptySubText.textContent = '该分类下还没有网站'; }
+            if (!dataLoaded) {
+              emptyText.textContent = '正在加载网站…';
+              emptySubText.textContent = '请稍候，网站卡片即将呈现';
+            } else if (curCat === 'favorites') {
+              emptyText.textContent = '暂无收藏';
+              emptySubText.textContent = '点击心形图标收藏喜欢的网站吧';
+            } else if (curCat === 'shared') {
+              emptyText.textContent = '未找到该网站';
+              emptySubText.textContent = '请检查链接是否正确';
+            } else {
+              emptyText.textContent = '暂无内容';
+              emptySubText.textContent = '该分类下还没有网站';
+            }
           } else {
             emptyEl.style.display = 'none';
-            gridEl.innerHTML = f.map(t => { const fav = isFav(t.id); const cn = getCats().find(c => c.id === t.category)?.name || t.category || '网站'; return `<div class="card ${t.accentClass}" data-tool-id="${t.id}" data-url="${t.url}" data-title="${t.title}" data-external="${!!t.external}"><div class="card-icon-row"><div class="card-icon ${t.iconBgClass}">${t.icon}</div><div class="card-title">${t.title}</div><span class="open-btn" data-tool-id="${t.id}" title="打开网站"></span></div><div class="card-desc">${t.description}</div><div class="card-footer-row"><button class="card-category-badge" data-category="${t.category}">${cn}</button><div class="card-actions"><button class="action-btn share-btn" data-tool-id="${t.id}" title="转发"><span class="icon">📤</span><span class="label">转发</span></button><button class="action-btn fav-btn ${fav ? 'favorited' : ''}" data-tool-id="${t.id}"><span class="icon">${fav ? '❤️' : '🤍'}</span><span class="label">收藏</span></button></div></div></div>`; }).join('');
-            if (curCat === 'favorites') setupDrag();
-          }
+            gridEl.innerHTML = f.map(t => { const fav = isFav(t.id); const cn = getCats().find(c => c.id === t.category)?.name || t.category || '网站'; return `<div class="card ${t.accentClass}" data-tool-id="${t.id}" data-url="${t.url}" data-title="${t.title}" data-external="${!!t.external}"><div class="card-icon-row"><div class="card-icon ${t.iconBgClass}">${t.icon}</div><div class="card-title">${t.title}</div><span class="open-btn" data-tool-id="${t.id}" title="打开网站"></span></div><div class="card-desc">${t.description}</div><div class="card-footer-row"><button class="card-category-badge" data-category="${t.category}">${cn}</button><div class="card-actions"><button class="action-btn share-btn" data-tool-id="${t.id}" title="转发"><span class="icon">📤</span><span class="label">转发</span></button><button class="action-btn fav-btn ${fav ? 'favorited' : ''}" data-tool-id="${t.id}"><span class="icon">${fav ? '❤️' : '🤍'}</span><span class="label">收藏</span></button></div></div></div>`; }).join(''); if (curCat === 'favorites') setupDrag(); }
         };
 
         renderAll = function() { renderTags(); renderCards(); };
@@ -878,8 +882,15 @@
           const base = location.origin + location.pathname;
           const su = base + '?open=' + encodeURIComponent(url);
           const shareText = `「${title}」 ${su}`;
-          if (navigator.share) { navigator.share({ title: title, text: shareText, url: su }).catch(() => {}); }
-          else { if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(shareText).then(() => alert('链接已复制，可粘贴分享。')); } else { prompt('复制下面的链接分享给朋友：', shareText); } }
+          if (navigator.share) {
+            navigator.share({ title: title, text: shareText, url: su }).catch(() => {});
+          } else {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+              navigator.clipboard.writeText(shareText).then(() => alert('链接已复制，可粘贴分享。'));
+            } else {
+              prompt('复制下面的链接分享给朋友：', shareText);
+            }
+          }
         }
 
         if (checkShared()) curCat = 'shared';
@@ -894,13 +905,21 @@
       const pendingTools = [];
       let collectTimer = null;
       let finalFlushDone = false;
-      function addTools(arr) { if (arr && Array.isArray(arr)) pendingTools.push(arr); }
+
+      function addTools(arr) {
+        if (arr && Array.isArray(arr)) {
+          pendingTools.push(arr);
+        }
+      }
+
       function flushTools(isFinal) {
         if (finalFlushDone) return;
         if (isFinal) {
           if (collectTimer) { clearTimeout(collectTimer); collectTimer = null; }
           pendingTools.forEach(arr => { toolsData = toolsData.concat(arr); });
-          pendingTools.length = 0; finalFlushDone = true; dataLoaded = true;
+          pendingTools.length = 0;
+          finalFlushDone = true;
+          dataLoaded = true;
           if (appInit) renderAll();
         } else {
           if (finalFlushDone) return;
@@ -908,23 +927,35 @@
           const snapshot = [];
           pendingTools.forEach(arr => { snapshot.push(...arr); });
           const tempData = [...toolsData, ...snapshot];
-          const oldTools = toolsData; toolsData = tempData;
-          const originalShuf = shuffled; const tempShuffled = {};
+          const oldTools = toolsData;
+          toolsData = tempData;
+          const originalShuf = shuffled;
+          const tempShuffled = {};
           for (const key in shuffled) { tempShuffled[key] = shuffled[key]; delete shuffled[key]; }
           if (appInit) renderAll();
-          Object.assign(shuffled, tempShuffled); toolsData = oldTools;
+          Object.assign(shuffled, tempShuffled);
+          toolsData = oldTools;
         }
       }
-      function startCollectTimer() { if (collectTimer) clearTimeout(collectTimer); collectTimer = setTimeout(() => flushTools(false), 200); }
+
+      function startCollectTimer() {
+        if (collectTimer) clearTimeout(collectTimer);
+        collectTimer = setTimeout(() => {
+          flushTools(false);
+        }, 200);
+      }
 
       (async function() {
-        initFramework(); startCollectTimer();
+        initFramework();
+        startCollectTimer();
         const promises = categoryConfigs.map(cfg => {
           return loadScript(`tools/${cfg.folder}/toolsData.js`).then(() => {
             const varName = cfg.folder + 'Tools';
             const categoryTools = window[varName];
             if (categoryTools) addTools(categoryTools);
-          }).catch(error => console.error(`加载分类 ${cfg.folder} 失败:`, error));
+          }).catch((error) => {
+            console.error(`加载分类 ${cfg.folder} 失败:`, error);
+          });
         });
         await Promise.allSettled(promises);
         flushTools(true);
