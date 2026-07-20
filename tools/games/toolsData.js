@@ -67,7 +67,8 @@ var gamesTools = [
     category: 'games',
     icon: '🏘️',
     iconBgClass: 'bg-3',
-    accentClass: 'accent-3'
+    accentClass: 'accent-3',
+    external: true // ← 用新窗口打开
   },
   {
   id: 'games-8',                              // 根据已有游戏序号调整
