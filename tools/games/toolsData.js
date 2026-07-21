@@ -84,7 +84,7 @@ var gamesTools = [
   id: 'games-9',                             // 根据实际序号调整
   title: 'GTA 罪恶都市',
   url: 'https://gtavc.armdev.cn/',
-  description: '在浏览器中重温经典 GTA：罪恶都市，无需下载即刻畅玩。',
+  description: '在浏览器中重温经典 GTA：罪恶都市，无需下载即刻畅玩。（若打开不是游戏请更换浏览器）',
   category: 'games',
   icon: '🚗',
   iconBgClass: 'bg-5',        // 橙红渐变，适配游戏复古都市风
