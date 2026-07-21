@@ -79,6 +79,16 @@ var gamesTools = [
   icon: '✏️',
   iconBgClass: 'bg-1',      // 活泼的粉红渐变，和手绘涂鸦风格很搭
   accentClass: 'accent-1'
+  },
+  {
+  id: 'games-9',                             // 根据实际序号调整
+  title: 'GTA 罪恶都市',
+  url: 'https://gtavc.armdev.cn/',
+  description: '在浏览器中重温经典 GTA：罪恶都市，无需下载即刻畅玩。',
+  category: 'games',
+  icon: '🚗',
+  iconBgClass: 'bg-5',        // 橙红渐变，适配游戏复古都市风
+  accentClass: 'accent-5',
   }
   
   // 在这里继续添加更多游戏工具
