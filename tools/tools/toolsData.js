@@ -8,6 +8,6 @@ var toolsTools = [
     icon: '🔍',
     iconBgClass: 'bg-4',      // 蓝紫渐变，理性工具感
     accentClass: 'accent-4',
-    
+    external: true            // 搜索引擎适合在新标签页打开
   }
 ];
