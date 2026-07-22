@@ -358,7 +358,6 @@
     @media (min-width: 601px) and (max-width: 1024px) {
       .cards-grid { grid-template-columns: repeat(2, 1fr); }
     }
-    /* 卡片淡入动画仅在非拖拽时保留 */
     @keyframes fadeInUp {
       from { opacity: 0; transform: translateY(16px); }
       to { opacity: 1; transform: translateY(0); }
@@ -561,6 +560,24 @@
 
         scrollEl.addEventListener('scroll', updateFadeMask);
         window.addEventListener('resize', updateFadeMask);
+
+        // ===================== 防止滑动误触 =====================
+        let touchStartX = 0, touchStartY = 0;
+        gridEl.addEventListener('touchstart', (e) => {
+          touchStartX = e.touches[0].clientX;
+          touchStartY = e.touches[0].clientY;
+          gridEl.classList.remove('swiping');
+        }, { passive: true });
+
+        gridEl.addEventListener('touchmove', (e) => {
+          if (gridEl.classList.contains('swiping')) return;
+          const dx = e.touches[0].clientX - touchStartX;
+          const dy = e.touches[0].clientY - touchStartY;
+          if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
+            gridEl.classList.add('swiping');
+          }
+        }, { passive: true });
+        // ========================================================
 
         expandBtn.addEventListener('click', () => {
           scrollEl.classList.toggle('expanded');
@@ -780,16 +797,18 @@
           if (favSortable) { favSortable.destroy(); favSortable = null; }
           if (curCat === 'favorites' && gridEl.children.length > 0) {
             favSortable = new Sortable(gridEl, {
-              animation: 150,             // 其他卡片移动的动画时间（仅在非拖拽元素上生效）
+              animation: 150,
               delay: 100,
               touchStartThreshold: 8,
               scroll: true,
-              forceFallback: true,       // 确保移动端也能实时重排
-              fallbackClass: 'card-sortable-fallback', // 自定义类（实际样式由 .card.sortable-drag 控制）
+              forceFallback: true,
+              fallbackClass: 'card-sortable-fallback',
               onEnd: function(evt) {
                 const movedId = favs.splice(evt.oldIndex, 1)[0];
                 favs.splice(evt.newIndex, 0, movedId);
                 saveFavs();
+                // 清除滑动标记，恢复正常点击
+                gridEl.classList.remove('swiping');
               }
             });
           }
@@ -827,7 +846,13 @@
 
         renderAll = function() { renderTags(); renderCards(); };
 
+        // 修改后的 click 处理器，增加滑动判断
         gridEl.addEventListener('click', (e) => {
+          // 如果之前发生了滑动，忽略本次点击
+          if (gridEl.classList.contains('swiping')) {
+            gridEl.classList.remove('swiping');
+            return;
+          }
           const badge = e.target.closest('.card-category-badge'); if (badge) { e.preventDefault(); e.stopPropagation(); if (badge.dataset.category) switchCat(badge.dataset.category); return; }
           const fb = e.target.closest('.fav-btn'); if (fb) { e.preventDefault(); e.stopPropagation(); togFav(fb.dataset.toolId); renderAll(); return; }
           const sb = e.target.closest('.share-btn'); if (sb) { e.preventDefault(); e.stopPropagation(); const card = sb.closest('.card'); if (card) shareTool(card.dataset.url, card.dataset.title); return; }
