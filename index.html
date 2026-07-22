@@ -724,7 +724,7 @@
           if (isExpanded) {
             const hint = document.createElement('div');
             hint.className = 'sort-hint';
-            hint.textContent = '↕️ 拖拽⋮⋮调整分类顺序，点击分类可刷新网站排序';
+            hint.textContent = '↕️ 拖拽标签调整分类顺序，点击分类可刷新网站排序';
             scrollEl.appendChild(hint);
           }
           // 绑定点击切换分类
@@ -738,7 +738,6 @@
             catSortable = new Sortable(scrollEl, {
               group: 'categories',
               animation: 150,
-              handle: '.drag-handle',
               filter: '.category-tag[data-category="all"], .category-tag[data-category="favorites"], .category-tag[data-category="shared"]',
               onEnd: function() {
                 const order = [];
@@ -753,12 +752,15 @@
           updateFadeMask();
         };
 
-        // 收藏卡片拖拽初始化
+        // 收藏卡片拖拽初始化（增加防误触）
         function initFavSortable() {
           if (favSortable) { favSortable.destroy(); favSortable = null; }
           if (curCat === 'favorites' && gridEl.children.length > 0) {
             favSortable = new Sortable(gridEl, {
               animation: 150,
+              delay: 100,              // 长按100ms后才开始拖拽
+              touchStartThreshold: 8,  // 手指移动超过8px才判定为拖拽
+              scroll: true,            // 允许拖拽到边缘时自动滚动
               onEnd: function(evt) {
                 const movedId = favs.splice(evt.oldIndex, 1)[0];
                 favs.splice(evt.newIndex, 0, movedId);
