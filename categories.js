@@ -29,6 +29,12 @@ var categoryConfigs = [
   id: 'tools',
   name: '工具',
   icon: ''
+  },
+  {
+  folder: 'ai',
+  id: 'ai',
+  name: 'AI',
+  icon: ''
   }
   // 未来添加新分类，只需在这里追加，例如：
   // {
