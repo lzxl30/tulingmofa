@@ -142,7 +142,7 @@
     .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 18px; }
     .card { background: var(--card-bg); border-radius: var(--radius); padding: 20px 20px 16px; box-shadow: var(--shadow); transition: var(--transition); border: 1px solid var(--card-border); position: relative; display: flex; flex-direction: column; gap: 8px; text-decoration: none; color: inherit; overflow: hidden; -webkit-tap-highlight-color: transparent; will-change: transform; }
     .card.sortable-ghost { opacity: 0.5; }
-    .card.sortable-chosen { border-color: var(--primary); box-shadow: 0 0 20px rgba(139, 124, 247, 0.4); }
+    .card.sortable-chosen { opacity: 0; }
     .card:active { transform: scale(0.98); }
     .card:hover { transform: translateY(-4px); box-shadow: var(--shadow-hover); border-color: var(--primary-light); }
     .card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; opacity: 0.9; }
@@ -738,6 +738,7 @@
             catSortable = new Sortable(scrollEl, {
               group: 'categories',
               animation: 150,
+              draggable: '.category-tag',  // 只允许标签拖拽
               filter: '.category-tag[data-category="all"], .category-tag[data-category="favorites"], .category-tag[data-category="shared"]',
               onEnd: function() {
                 const order = [];
@@ -752,7 +753,7 @@
           updateFadeMask();
         };
 
-        // 收藏卡片拖拽初始化（防误触）
+        // 收藏卡片拖拽初始化（防误触，无重影）
         function initFavSortable() {
           if (favSortable) { favSortable.destroy(); favSortable = null; }
           if (curCat === 'favorites' && gridEl.children.length > 0) {
@@ -761,6 +762,8 @@
               delay: 100,              // 长按100ms后才开始拖拽
               touchStartThreshold: 8,  // 手指移动超过8px才判定为拖拽
               scroll: true,            // 允许拖拽到边缘时自动滚动
+              forceFallback: true,     // 强制使用拖拽代理，避免原卡显示
+              fallbackClass: 'card-sortable-fallback',
               onEnd: function(evt) {
                 const movedId = favs.splice(evt.oldIndex, 1)[0];
                 favs.splice(evt.newIndex, 0, movedId);
