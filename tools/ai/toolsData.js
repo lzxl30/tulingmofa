@@ -20,5 +20,16 @@ var aiTools = [
   iconBgClass: 'bg-2',
   accentClass: 'accent-2',
   external: true
+ },
+ {
+  id: 'ai-3',
+  title: '公益云酒馆（回SillyTavern）',
+  url: 'https://www.spacesouls.com/',
+  description: '免费公益的 SillyTavern 酒馆实例，支持多种 AI 角色扮演与对话。',
+  category: 'ai',
+  icon: '🍸',
+  iconBgClass: 'bg-6',
+  accentClass: 'accent-6',
+  external: true
  }
 ];
